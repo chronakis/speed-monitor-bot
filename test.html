@@ -41,14 +41,12 @@ function getFlowData() {
     success: function (data) {
       console.log(data);
       trdata = data;
-      report (data);
+      $('#bbox').val(here.params.bbox);
+      //report (data);
       //processResults(data);
       previewResults(data);
     }
   });
-}
-
-function report(dt) {
 }
 
 function writeResult(text, indent) {
@@ -67,6 +65,7 @@ function previewResults(data) {
     let flowItems = rw.FIS
       .flatMap(fis => fis.FI)
       .map(e => ({
+        rw: {LI: rw.LI, DE: rw.DE},
         tmc: e.TMC,
         samples: (e.CF.flatMap(ve => ve.SSS ? ve.SSS.SS.map(ve2 => {ve2['CN'] = ve.CN; return ve2}) : ve)),
         shapes: e.SHP
@@ -86,7 +85,13 @@ function drawFlowItem(key) {
   clearMap(shpObjects);
   let flowItem = flowItemIndex[key];
   let shapes = flowItem.shapes.map(so => so.value[0]); // flow strings array
-  console.log(flowItem.tmc.DE, shapes);
+  //console.log(flowItem.tmc.DE, shapes);
+
+  // Update the filter
+  $('#li').val(flowItem.rw.LI);
+  $('#pc').val(flowItem.tmc.PC);
+
+  console.log('flowItem',flowItem);
 
   shapes.forEach( shp => {
     let so = addShapeToMap(map, shp);
@@ -124,6 +129,16 @@ function processResults(data) {
   // - CN (add when the sources is SSS.SS)
 }
 
+
+function updateBbox() {
+  here.params.bbox = $('#bbox').val();
+  clearMap(shpObjects);
+  $('#results').html('');
+  setMapViewBounds(map, here.params.bbox);
+  getFlowData();  
+}
+
+
 </script>
 <style>
 #test-cont {
@@ -147,22 +162,28 @@ function processResults(data) {
   white-space: pre-wrap;
   overflow: scroll;
 }
+.hspace {
+  display: inline-block;
+  width:  2em;
+}
+.hspace2 {
+  display: inline-block;
+  width:  6em;
+}
 </style>
 </head>
 <body>
   <p>The data are in the global variable called <b>data</b></p>
-  <p>Click on a segment on the left to plot it on the map on the right. It may be out of view so you may need to pan/zoom out<p>
+  <p>Click on a segment on the left to plot it on the map on the right. It may be out of view so you may need to pan/zoom out. Your filter values for that segment will show below</p>
+  <p>
+    <label for="bbox">bbox: </label><input type="text" name="bbox" id="bbox" size="40" />
+      <input type="button" name="go" id="go" value="Go" onclick="updateBbox()"/><span class="hspace2"></span>
+      <b>Filter values (config.js) </b>:
+    <label for="li">LI (Road Id): </label><input type="text" name="li" id="li" readonly/><span class="hspace"></span>
+    <label for="pc">PC (Segment Id): </label><input type="text" name="pc" id="pc" readonly/>
+  </p>
   <div id="test-cont">
     <div id="results-cont">
-      <pre style="display: none">
-        data.RWS[0].RW.flatMap(e => e.FIS).flatMap(e => e.FI).map(e => ({area: e.TMC.DE, vehicles: e.CF.map(cf => cf.SU)}));
-        data.RWS[0].RW.flatMap(e => e.FIS).flatMap(e => e.FI).map(e => e.TMC.DE + ': [' + e.CF.map(cf => cf.SU).join() + ']');
-        data.RWS[0].RW.flatMap(e => e.FIS).flatMap(e => e.FI).map(e => ({area: e.TMC.DE, vehicles: e.CF, traffic: e.TMC}));
-        data.RWS[0].RW.flatMap(e => e.FIS).flatMap(e => e.FI).map(e => ({area: e.TMC.DE, vehicles: e.CF, traffic: e.TMC})).filter(e => e.area.search(here.roadRegExp) >= 0);
-
-        data.RWS[0].RW.flatMap(e => e.FIS).flatMap(e => e.FI).map(e => ({area: e.TMC.DE, vehicles: (e.CF.flatMap(ve => ve.SSS ? ve.SSS.SS : ve)), traffic: e.TMC})).filter(e => e.area.search(regxFilter) >= 0);
-        
-      </pre>
       <div id="results"></div>
     </div>
     <div id="map">
