@@ -20,28 +20,30 @@
   <script>
 
 var map;
+var trdata;
+var flowItemIndex = {};
+var shpObjects = [];
+
 $( document ).ready(function() {
     map = createAndLoadMap(here.params.apiKey,'map');
     setMapViewBounds(map, here.params.bbox);
-    doCall();
+    getFlowData();
 });
 
 
-var data;
-
-function doCall() {
+function getFlowData() {
   $.ajax({
     url: 'https://traffic.ls.hereapi.com/traffic/6.1/flow.json',
     type: 'GET',
     dataType: 'jsonp',
     jsonp: 'jsoncallback',
     data: here.params,
-    success: function (rawData) {
-      console.log(rawData);
-      data = rawData;
+    success: function (data) {
+      console.log(data);
+      trdata = data;
       report (data);
-
-      processResults(data);
+      //processResults(data);
+      previewResults(data);
     }
   });
 }
@@ -49,8 +51,47 @@ function doCall() {
 function report(dt) {
 }
 
-function writeResult(text) {
-  $('#results').append(text + '\n');
+function writeResult(text, indent) {
+  $('#results').append((indent ? indent : '') + text + '\n');
+}
+
+function previewResults(data) {
+  // need to draw a tree of:
+  //   RW.DE -> TMC.DE + draw(SHPs)
+  // then offer a couple of filters as input boxes to be able to get to the one you want
+
+  let div = $('#results');
+  let roadways = data.RWS[0].RW;
+  roadways.forEach(rw => {
+    div.append(`<b>${rw.DE}</b>: `);
+    let flowItems = rw.FIS
+      .flatMap(fis => fis.FI)
+      .map(e => ({
+        tmc: e.TMC,
+        samples: (e.CF.flatMap(ve => ve.SSS ? ve.SSS.SS.map(ve2 => {ve2['CN'] = ve.CN; return ve2}) : ve)),
+        shapes: e.SHP
+      }));
+
+    let text = flowItems.map( fi => {
+      let key = rw.LI + '-' + fi.tmc.PC;
+      flowItemIndex[key] = fi;
+      return `<a href="#" title="${key}" onclick="drawFlowItem('${key}'); return false;">${fi.tmc.DE}</a>`
+    }).join(', ');
+    div.append(text +'\n');
+  });
+}
+
+
+function drawFlowItem(key) {
+  clearMap(shpObjects);
+  let flowItem = flowItemIndex[key];
+  let shapes = flowItem.shapes.map(so => so.value[0]); // flow strings array
+  console.log(flowItem.tmc.DE, shapes);
+
+  shapes.forEach( shp => {
+    let so = addShapeToMap(map, shp);
+    shpObjects.push(so);
+  });
 }
 
 function processResults(data) {
@@ -102,7 +143,7 @@ function processResults(data) {
   border: thin solid grey;
   background: #ddd;
   padding: 0.5em;
-  line-height: 1.8em;
+  line-height: 1.6em;
   white-space: pre-wrap;
   overflow: scroll;
 }

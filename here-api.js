@@ -16,8 +16,8 @@ function setMapViewBounds(map, bbox){
 /**
  * Takes a shape string and draws a poly line on the map
  */
-function addShapeToMap(shapeString) {
-  addPolylineToMap(shapes2cords(shapeString));
+function addShapeToMap(map, shapeString) {
+  return addPolylineToMap(map, shapes2cords(shapeString));
 }
 
 
@@ -33,10 +33,12 @@ function addShapeToMap(shapeString) {
 function addPolylineToMap(map, coordsArray) {
   var lineString = new H.geo.LineString();
   coordsArray.forEach( c => lineString.pushPoint(c));
-
-  map.addObject(new H.map.Polyline(
-    lineString, { style: { lineWidth: 4 }}
-  ));
+  
+  let poly = new H.map.Polyline(
+    lineString, { style: { lineWidth: 4, strokeColor: '#F00' }}
+  );
+  map.addObject(poly);
+  return poly;
 }
 
 /**
@@ -55,8 +57,12 @@ function shapes2cords(shapeString) {
     return res;
 }
 
-function clearMap() {
-
+/**
+ * Removes all the objects from the map
+ */
+function clearMap(shapeObjects) {
+  shapeObjects.forEach(so => so.invalidate(H.map.provider.Invalidations.Flag.REMOVE));
+  shapeObjects = [];
 }
 
 /**
