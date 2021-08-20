@@ -1,0 +1,8 @@
+/node*
+/node_modules
+/dist/
+nohup.out
+config*.js
+*~
+*.bak
+*.tmp
