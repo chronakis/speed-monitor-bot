@@ -91,14 +91,27 @@ function drawFlowItem(key) {
   $('#li').val(flowItem.rw.LI);
   $('#pc').val(flowItem.tmc.PC);
 
-  console.log('flowItem',flowItem);
-
   shapes.forEach( shp => {
     let so = addShapeToMap(map, shp);
     shpObjects.push(so);
   });
+
+  previewSpeedData(key);
 }
 
+function previewSpeedData(key) {
+  $('#flow-data').html('');
+  let flowItem = flowItemIndex[key];
+  console.log('flowItem', flowItem);
+
+  let headers = "<tr><th>Road</th><th>Segment</th><th>Seg Length (LE)</th><th>Sub length (LE)</th><th>Confidence (CN)</th><th>Speed (SU)</th></tr>";
+  let text = flowItem.samples.reduce((acc, val) => 
+    acc + `<tr><td>${flowItem.rw.DE}</td><td>${flowItem.tmc.DE}</td><td>${flowItem.tmc.LE}</td><td>${val.LE ? val.LE : ''}</td><td>${val.CN}</td><td>${val.SU}</td></tr>`,
+    '');
+  $('#flow-data').html(`<table>${headers}${text}</table`);
+}
+
+// Not used any more
 function processResults(data) {
   let roadways = data.RWS[0].RW;
   writeResult("Roadways found: " + roadways.map(rw => rw.DE));  
@@ -144,17 +157,21 @@ function updateBbox() {
 #test-cont {
   position: relative;
 }
+#flow-cont {
+  position: relative;
+}
 #map {
   position: absolute;
   right: 0px;
   top: 0px;
   width: 59%;
-  height: 450px;
+  height: 460px;
   border: 1px solid #cdced0;
   background-color: #e4e6e9;
 }
 #results {
   width:  39%;
+  height: 450px;
   border: thin solid grey;
   background: #ddd;
   padding: 0.5em;
@@ -162,6 +179,24 @@ function updateBbox() {
   white-space: pre-wrap;
   overflow: scroll;
 }
+#flow-data {
+  position: absolute;
+  right: 0px;
+  top: 0px;
+  width: 59%;
+  min-height: 20px;
+  background: #eef;
+  border: thin solid #cce;
+}
+#flow-data table {
+  border-collapse: collapse; 
+  font-family: monospace;
+}
+#flow-data th, #flow-data td {
+  border: 1px solid #fff;
+  padding: .3em .6em;
+}
+
 .hspace {
   display: inline-block;
   width:  2em;
@@ -173,7 +208,7 @@ function updateBbox() {
 </style>
 </head>
 <body>
-  <p>The data are in the global variable called <b>data</b></p>
+  <p>Go to <a href="https://developer.here.com/documentation/examples/rest/traffic/traffic-flow-bounding-box" target="_blank">here maps</a> to draw your bounding box and the either set it in the config.js or put it below in the text box</p>
   <p>Click on a segment on the left to plot it on the map on the right. It may be out of view so you may need to pan/zoom out. Your filter values for that segment will show below</p>
   <p>
     <label for="bbox">bbox: </label><input type="text" name="bbox" id="bbox" size="40" />
@@ -182,11 +217,17 @@ function updateBbox() {
     <label for="li">LI (Road Id): </label><input type="text" name="li" id="li" readonly/><span class="hspace"></span>
     <label for="pc">PC (Segment Id): </label><input type="text" name="pc" id="pc" readonly/>
   </p>
+  <p>BTW, If you want to inspect the flow data, they are in the global variable called <b>trdata</b></p>
   <div id="test-cont">
     <div id="results-cont">
       <div id="results"></div>
     </div>
     <div id="map">
+    </div>
+  </div>
+  <div id="flow-cont">
+    <div id="flow-data">
+      
     </div>
   </div>
 </body>
