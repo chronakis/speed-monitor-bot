@@ -28,7 +28,7 @@ This is what bothered me most in my quest to find data for Regent's park. So I e
 
 You will need to clone/download the project and run it behind a web server. If you have python, you can switch to the directory of the project and then run `python -m SimpleHTTPServer 8000` to run a web server in port 8000. Then go in your browser to `http://localhost:8000/test.html`
 
-The results will look like the screenshot here. TODO: INSERT THE SCREENSHOT
+The results will look like ![the screenshot here](https://user-images.githubusercontent.com/493791/130260565-a6a25dd2-b054-4af4-be4c-cd91e3f9945f.png).
 
 ## Configuration ##
 
