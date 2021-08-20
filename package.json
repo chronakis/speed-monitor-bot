@@ -1,0 +1,17 @@
+{
+  "name": "twitterSpeedBot",
+  "version": "1.0.0",
+  "description": "An alternative to SpeederBot",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.21.1",
+    "oauth": "^0.9.15"
+  },
+  "devDependencies": {
+  }
+}

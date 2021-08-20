@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+  <script
+        src="https://code.jquery.com/jquery-3.6.0.min.js"
+        integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
+        crossorigin="anonymous">
+  </script>
+  <script type="text/javascript" src="https://js.api.here.com/v3/3.1/mapsjs-core.js"></script>
+  <script type="text/javascript" src="https://js.api.here.com/v3/3.1/mapsjs-service.js"></script>
+  <script type="text/javascript" src="https://js.api.here.com/v3/3.1/mapsjs-ui.js"></script>
+  <script type="text/javascript" src="https://js.api.here.com/v3/3.1/mapsjs-mapevents.js"></script>
+  <link rel="stylesheet" type="text/css" href="https://js.api.here.com/v3/3.1/mapsjs-ui.css" />
+
+  
+  <script src="config.js" crossorigin="anonymous"></script>
+  <script src="here-api.js" crossorigin="anonymous"></script>
+  <script>
+
+var map;
+$( document ).ready(function() {
+    map = createAndLoadMap(here.params.apiKey,'map');
+    setMapViewBounds(map, here.params.bbox);
+    doCall();
+});
+
+
+var data;
+
+function doCall() {
+  $.ajax({
+    url: 'https://traffic.ls.hereapi.com/traffic/6.1/flow.json',
+    type: 'GET',
+    dataType: 'jsonp',
+    jsonp: 'jsoncallback',
+    data: here.params,
+    success: function (rawData) {
+      console.log(rawData);
+      data = rawData;
+      report (data);
+
+      processResults(data);
+    }
+  });
+}
+
+function report(dt) {
+}
+
+function writeResult(text) {
+  $('#results').append(text + '\n');
+}
+
+function processResults(data) {
+  let roadways = data.RWS[0].RW;
+  writeResult("Roadways found: " + roadways.map(rw => rw.DE));  
+
+  // Filter out the irrelevant roadways
+  let filteredRWs = data.RWS[0].RW.filter(rw => rw.DE.search(here.roadRegExp) >= 0);
+  writeResult("Filtered roadways: " + filteredRWs.map(rw => rw.DE));  
+
+  // Merge the FIs into one array.
+  let fis = filteredRWs.flatMap(rw => rw.FIS).flatMap(fis => fis.FI);
+  writeResult("Segments found: " + fis.map(fi => fi.TMC.DE));
+  
+  // Further filter down segments
+  let filteredFis = fis.filter(fi => fi.TMC.DE.search(here.segRegExp) >= 0)
+  writeResult("Filtered segments: " + filteredFis.map(fi => fi.TMC.DE));
+
+  let samples = filteredFis.map(e => ({
+    tmc: e.TMC,
+    samples: (e.CF.flatMap(ve => ve.SSS ? ve.SSS.SS.map(ve2 => {ve2['CN'] = ve.CN; return ve2}) : ve)),
+    shpapes: e.SHP
+  }));
+  console.log(samples);
+
+  // Transform to a flat array of average speeds (CF or SS) enriched by:
+  // - RW.DE (the roadway) ? Do I need this? Shall I not try to filter for a single roadway?
+  // - TMC.DE (the segment)
+  // - SHP (the shapes)
+  // - CN (add when the sources is SSS.SS)
+}
+
+</script>
+<style>
+#test-cont {
+  position: relative;
+}
+#map {
+  position: absolute;
+  right: 0px;
+  top: 0px;
+  width: 59%;
+  height: 450px;
+  border: 1px solid #cdced0;
+  background-color: #e4e6e9;
+}
+#results {
+  width:  39%;
+  border: thin solid grey;
+  background: #ddd;
+  padding: 0.5em;
+  line-height: 1.8em;
+  white-space: pre-wrap;
+  overflow: scroll;
+}
+</style>
+</head>
+<body>
+  <p>The data are in the global variable called <b>data</b></p>
+  <p>Click on a segment on the left to plot it on the map on the right. It may be out of view so you may need to pan/zoom out<p>
+  <div id="test-cont">
+    <div id="results-cont">
+      <pre style="display: none">
+        data.RWS[0].RW.flatMap(e => e.FIS).flatMap(e => e.FI).map(e => ({area: e.TMC.DE, vehicles: e.CF.map(cf => cf.SU)}));
+        data.RWS[0].RW.flatMap(e => e.FIS).flatMap(e => e.FI).map(e => e.TMC.DE + ': [' + e.CF.map(cf => cf.SU).join() + ']');
+        data.RWS[0].RW.flatMap(e => e.FIS).flatMap(e => e.FI).map(e => ({area: e.TMC.DE, vehicles: e.CF, traffic: e.TMC}));
+        data.RWS[0].RW.flatMap(e => e.FIS).flatMap(e => e.FI).map(e => ({area: e.TMC.DE, vehicles: e.CF, traffic: e.TMC})).filter(e => e.area.search(here.roadRegExp) >= 0);
+
+        data.RWS[0].RW.flatMap(e => e.FIS).flatMap(e => e.FI).map(e => ({area: e.TMC.DE, vehicles: (e.CF.flatMap(ve => ve.SSS ? ve.SSS.SS : ve)), traffic: e.TMC})).filter(e => e.area.search(regxFilter) >= 0);
+        
+      </pre>
+      <div id="results"></div>
+    </div>
+    <div id="map">
+    </div>
+  </div>
+</body>
+</html>
