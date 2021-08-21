@@ -20,7 +20,7 @@ For each of those sections/subsections they report a set of numbers. The most im
 * **CN**: The confidence value. The important thing is "**A value greater than 0.7 and less than or equal to 1.0 indicates real time speeds**" (source: https://developer.here.com/documentation/traffic/dev_guide/topics/common-acronyms.html)
 
 
-So we can more or less assume that the average speed for a subsection of a given distance is the value provided by SU, when `0.7 < CN < 1.0`
+So we can more or less assume that the average speed for a subsection of a given distance is the value provided by SU, when `0.7 < CN <= 1.0`
 
 ## 2. How do I know what section of the road I am looking at? ##
 

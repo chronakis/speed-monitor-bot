@@ -42,8 +42,6 @@ function getFlowData() {
       console.log(data);
       trdata = data;
       $('#bbox').val(here.params.bbox);
-      //report (data);
-      //processResults(data);
       previewResults(data);
     }
   });
@@ -109,37 +107,6 @@ function previewSpeedData(key) {
     acc + `<tr><td>${flowItem.rw.DE}</td><td>${flowItem.tmc.DE}</td><td>${flowItem.tmc.LE}</td><td>${val.LE ? val.LE : ''}</td><td>${val.CN}</td><td>${val.SU}</td></tr>`,
     '');
   $('#flow-data').html(`<table>${headers}${text}</table`);
-}
-
-// Not used any more
-function processResults(data) {
-  let roadways = data.RWS[0].RW;
-  writeResult("Roadways found: " + roadways.map(rw => rw.DE));  
-
-  // Filter out the irrelevant roadways
-  let filteredRWs = data.RWS[0].RW.filter(rw => rw.DE.search(here.roadRegExp) >= 0);
-  writeResult("Filtered roadways: " + filteredRWs.map(rw => rw.DE));  
-
-  // Merge the FIs into one array.
-  let fis = filteredRWs.flatMap(rw => rw.FIS).flatMap(fis => fis.FI);
-  writeResult("Segments found: " + fis.map(fi => fi.TMC.DE));
-  
-  // Further filter down segments
-  let filteredFis = fis.filter(fi => fi.TMC.DE.search(here.segRegExp) >= 0)
-  writeResult("Filtered segments: " + filteredFis.map(fi => fi.TMC.DE));
-
-  let samples = filteredFis.map(e => ({
-    tmc: e.TMC,
-    samples: (e.CF.flatMap(ve => ve.SSS ? ve.SSS.SS.map(ve2 => {ve2['CN'] = ve.CN; return ve2}) : ve)),
-    shpapes: e.SHP
-  }));
-  console.log(samples);
-
-  // Transform to a flat array of average speeds (CF or SS) enriched by:
-  // - RW.DE (the roadway) ? Do I need this? Shall I not try to filter for a single roadway?
-  // - TMC.DE (the segment)
-  // - SHP (the shapes)
-  // - CN (add when the sources is SSS.SS)
 }
 
 
