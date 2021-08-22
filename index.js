@@ -22,24 +22,27 @@ function followUpFlowResponse(data) {
     let flowItems = dataToFlowItems(data);
     let flowItemsLocFiltered = filterFlowItemsByLocation(flowItems, config.filter);
     let report = generateReport(flowItemsLocFiltered, config.filter);
-    return;
-    let text = templateToText(config.twitter.statusTemplate, fd, stats);
-
+    let statusText = createTweetStatus(report, config.twitter.statusTemplate);
     
     if (config.steps.log) {
       console.log("Logging placeholder");
     }
 
-    if (config.steps.tweet) {
-      tweet(text, (err, data => {
-        if (err)
-          console.error('tweet failed', err);
-        else
-          console.log('tweet succedded', ':', text);
-      }));
+    if (report.speedsCount > 0) {
+      if (config.steps.tweet) {
+        tweet(statusText, (err, data) => {
+          if (err)
+            console.error('Tweet failed', err);
+          else
+            console.log('Tweet succedded', ':', statusText);
+        });
+      }
+      else {
+        console.log('Text not tweeted:', statusText);
+      }
     }
     else {
-      console.log('text not tweeted:', text);
+      console.log('No speeding cars found', report);
     }
 }
 
@@ -122,8 +125,8 @@ function generateReport (flowItems, limits) {
   let spdPredicate = limitKm ? (spd) => spd > limitKm : (spd) => true ;
 
 
-  report['limitKm'] = limitKm ? limitKm : 'none';
-  report['limitMi'] = limitKm ? limitKm * config.misc.km2miles : 'none';
+  report['limitKm'] = limitKm ? Math.round(limitKm) : 'none';
+  report['limitMi'] = limitKm ? Math.round(limitKm * config.misc.km2miles) : 'none';
 
   // For now we will only process one road/section
   let flowItem = flowItems[0];
@@ -182,12 +185,7 @@ function generateReport (flowItems, limits) {
  * report.speedsKmText    A text summary of the speeds in Km/h, e.g. '30km/h, 35Km/h'(suggested)
  * report.speedsMiText    A text summary of the speeds in mph, e.gg. '30mph, 35mph' (suggested)
  */
-function templateToText(report) {
-  let stDate = stats.dateStr;
-  let stTime = stats.timeStr;
-  let stSpeedMph = '30, 32, 35';
-  let stSegment = 'my road';
-
+function createTweetStatus(report, template) {
   return eval('`' + template + '`');
 }
 
@@ -196,19 +194,19 @@ function tweet(statusText) {
   var oauth = new OAuth.OAuth(
     'https://api.twitter.com/oauth/request_token',
     'https://api.twitter.com/oauth/access_token',
-    twitter.appKey,
-    twitter.appSecret,
+    config.twitter.appKey,
+    config.twitter.appSecret,
     '1.0A',
     null,
     'HMAC-SHA1'
   );
   
-  let body = ({'status': statusText + '(testing phase)'});
+  let body = ({'status': statusText});
   //let body = ({'status':'Hello!'});
 
   oauth.post('https://api.twitter.com/1.1/statuses/update.json',
-      twitter.accessToken,
-      twitter.accessTokenSecret,
+      config.twitter.accessToken,
+      config.twitter.accessTokenSecret,
       body,
       "application/json",
       function(error, data, resp) {
