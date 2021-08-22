@@ -1,0 +1,18 @@
+/**
+ * Put your api keys and secrets here
+ */
+twitter {
+    appKey: 'TWITTER_APP_KEY',
+    appSecret: 'TWITTER_APP_SECRET',
+    accessToken: 'TWITTER_ACCESS_TOKEN',
+    accessTokenSecret: 'TWITTER_ACCESS_TOKEN_SECRET'
+}
+
+here {
+    apiKey: 'HERE_API_KEY'    
+}
+
+/* Hack to work both in mode and in browser */
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = { twitter, here };
+}
