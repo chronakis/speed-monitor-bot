@@ -2,7 +2,9 @@
 /node_modules
 /dist/
 nohup.out
-config*.js
+config.js
+auth-config.js
+bot-config.js
 *~
 *.bak
 *.tmp
