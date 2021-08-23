@@ -78,7 +78,8 @@
   <p>Click on a segment on the left to plot it on the map on the right. It may be out of view so you may need to pan/zoom out. Your filter values for that segment will show below</p>
   <p>
     <label for="bbox">bbox: </label><input type="text" name="bbox" id="bbox" size="40" />
-      <input type="button" name="go" id="go" value="Go" onclick="updateBbox()"/><span class="hspace2"></span>
+      <input type="button" name="go" id="go" value="Go" onclick="updateBbox()"/>
+      <input type="button" name="bboxFromMap" id="bboxFromMap" value="From map" onclick="mapToBBox()"/><span class="hspace2"></span>
       <b>Filter values (config.js) </b>:
     <label for="li">LI (Road Id): </label><input type="text" name="li" id="li" readonly/><span class="hspace"></span>
     <label for="pc">PC (Segment Id): </label><input type="text" name="pc" id="pc" readonly/>

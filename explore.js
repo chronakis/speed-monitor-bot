@@ -97,12 +97,31 @@ function previewSpeedData(key) {
   $('#flow-data').html(`<table>${headers}${text}</table`);
 }
 
-
+/**
+ * Updates teh map bbox with the value form the input box
+ */
 function updateBbox() {
   let bbox = $('#bbox').val();
   clearMap(shpObjects);
   $('#results').html('');
+  $('#li').val('');
+  $('#pc').val('');
   setMapViewBounds(map, bbox);
+  getFlowData(here.apiKey, bbox);  
+}
+
+/**
+ * Updates the bbox from the map view
+ */
+function mapToBBox () {
+  let b = map.getViewModel().getLookAtData().bounds.getBoundingBox();
+  let bbox = `${b.la},${b.ca};${b.ma},${b.ia}`;
+  $('#bbox').val(bbox);
+
+  clearMap(shpObjects);
+  $('#results').html('');
+  $('#li').val('');
+  $('#pc').val('');
   getFlowData(here.apiKey, bbox);  
 }
 
