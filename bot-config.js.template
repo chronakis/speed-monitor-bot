@@ -1,6 +1,6 @@
-const botConfig = {
+const config = {
   // Set your bounding box here
-  bbox: '51.5619,-0.1006;51.5454,-0.0935',   // A1201 - Highbury grove/Blackstock Road
+  bbox: '51.5619,-0.1006;51.5454,-0.0935',// A1201 - Highbury grove/Blackstock Road
 
   // Road identity filter. Use the index.html to get it.
   LI_filter: 'C07-13780',
@@ -10,7 +10,7 @@ const botConfig = {
 
   // Speed limit in km/h or mph. Use one of the two. If both used, Km/h is used.
   limitKm: null,
-  limitMi: 20,
+  limitMi: 10,
 
   // Leave this as is. Based on the documentation,
   // valiues larger than 0.7 and less or equal to 1.0
@@ -22,7 +22,7 @@ const botConfig = {
   logFile: 'log.csv',
 
   // Enable twitting of above limit samples found
-  tweet: true,
+  tweet: false,
 
   /*
    * report.status          True (successful) or False (failed)
@@ -52,5 +52,5 @@ const botConfig = {
 
 /* Hack to work both in mode and in browser */
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { botConfig };
+  module.exports = { config };
 }
