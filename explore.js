@@ -2,6 +2,7 @@ var map;                  // The map
 var trdata;               // The trafic data for exploring through the console
 var flowItemIndex = {};   // The flow items indexd by he LI+'-'+PC string
 var shpObjects = [];      // The currently displayed shape objects so that the can be deleted.
+var botConfig = config;   // Just copy from the bot-config.js
 
 // TODO Remove the map, the map is good to be global
 
