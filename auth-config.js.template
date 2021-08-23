@@ -1,14 +1,14 @@
 /**
  * Put your api keys and secrets here
  */
-twitter {
+const twitter = {
     appKey: 'TWITTER_APP_KEY',
     appSecret: 'TWITTER_APP_SECRET',
     accessToken: 'TWITTER_ACCESS_TOKEN',
     accessTokenSecret: 'TWITTER_ACCESS_TOKEN_SECRET'
 }
 
-here {
+const here = {
     apiKey: 'HERE_API_KEY'    
 }
 
