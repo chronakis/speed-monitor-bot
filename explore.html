@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+  <script
+        src="https://code.jquery.com/jquery-3.6.0.min.js"
+        integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
+        crossorigin="anonymous">
+  </script>
+  <script type="text/javascript" src="https://js.api.here.com/v3/3.1/mapsjs-core.js"></script>
+  <script type="text/javascript" src="https://js.api.here.com/v3/3.1/mapsjs-service.js"></script>
+  <script type="text/javascript" src="https://js.api.here.com/v3/3.1/mapsjs-ui.js"></script>
+  <script type="text/javascript" src="https://js.api.here.com/v3/3.1/mapsjs-mapevents.js"></script>
+  <link rel="stylesheet" type="text/css" href="https://js.api.here.com/v3/3.1/mapsjs-ui.css" />
+
+  
+  <script src="auth-config.js" crossorigin="anonymous"></script>
+  <script src="bot-config.js" crossorigin="anonymous"></script>
+  <script src="here-api.js" crossorigin="anonymous"></script>
+  <script src="explore.js" crossorigin="anonymous"></script>
+<style>
+#test-cont {
+  position: relative;
+}
+#flow-cont {
+  position: relative;
+}
+#map {
+  position: absolute;
+  right: 0px;
+  top: 0px;
+  width: 59%;
+  height: 460px;
+  border: 1px solid #cdced0;
+  background-color: #e4e6e9;
+}
+#results {
+  width:  39%;
+  height: 450px;
+  border: thin solid grey;
+  background: #ddd;
+  padding: 0.5em;
+  line-height: 1.6em;
+  white-space: pre-wrap;
+  overflow: scroll;
+}
+#flow-data {
+  position: absolute;
+  right: 0px;
+  top: 0px;
+  width: 59%;
+  min-height: 20px;
+  background: #eef;
+  border: thin solid #cce;
+}
+#flow-data table {
+  border-collapse: collapse; 
+  font-family: monospace;
+}
+#flow-data th, #flow-data td {
+  border: 1px solid #fff;
+  padding: .3em .6em;
+}
+
+.hspace {
+  display: inline-block;
+  width:  2em;
+}
+.hspace2 {
+  display: inline-block;
+  width:  6em;
+}
+</style>
+</head>
+<body>
+  <p>Go to <a href="https://developer.here.com/documentation/examples/rest/traffic/traffic-flow-bounding-box" target="_blank">here maps</a> to draw your bounding box and the either set it in the bot-config.js or put it below in the text box</p>
+  <p>Click on a segment on the left to plot it on the map on the right. It may be out of view so you may need to pan/zoom out. Your filter values for that segment will show below</p>
+  <p>
+    <label for="bbox">bbox: </label><input type="text" name="bbox" id="bbox" size="40" />
+      <input type="button" name="go" id="go" value="Go" onclick="updateBbox()"/><span class="hspace2"></span>
+      <b>Filter values (config.js) </b>:
+    <label for="li">LI (Road Id): </label><input type="text" name="li" id="li" readonly/><span class="hspace"></span>
+    <label for="pc">PC (Segment Id): </label><input type="text" name="pc" id="pc" readonly/>
+  </p>
+  <p>BTW, If you want to inspect the flow data, they are in the global variable called <b>trdata</b></p>
+  <div id="test-cont">
+    <div id="results-cont">
+      <div id="results"></div>
+    </div>
+    <div id="map">
+    </div>
+  </div>
+  <div id="flow-cont">
+    <div id="flow-data">
+      
+    </div>
+  </div>
+</body>
+</html>
