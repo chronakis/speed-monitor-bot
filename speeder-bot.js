@@ -1,35 +1,49 @@
 const axios = require('axios');
 const OAuth = require('oauth');
-const config = require('./config.js');
+const authConfig = require('./auth-config.js');
+const rawConfig = require('./bot-config.js');
+const botConfig = rawConfig.config;
 
 
 axios.get('https://traffic.ls.hereapi.com/traffic/6.1/flow.json', {
-    params: config.here.params
+    params: {
+      apiKey: authConfig.here.apiKey,
+      bbox: botConfig.bbox,
+      responseattributes: 'sh'      
+    }
   })
   .then(res => {
-    console.log('TMC data retrieved');
-    followUpFlowResponse(res.data);
+    console.log('Traffic data retrieved');
+    doSpeederBot(res.data);
   })
   .catch(err => {
-    console.log(err);
+    console.log('Failed to retrieve traffic data', err);
   });
+
+/**
+ * Some convertion constants
+ */
+const convertions = {
+  km2miles: 0.6213712,
+  miles2km: 1.609344
+};
 
 
 /**
- * A function that follows up the traffic data
+ * A function that follows up the traffic data.
  */
-function followUpFlowResponse(data) {
+function doSpeederBot(data) {
     let flowItems = dataToFlowItems(data);
-    let flowItemsLocFiltered = filterFlowItemsByLocation(flowItems, config.filter);
-    let report = generateReport(flowItemsLocFiltered, config.filter);
-    let statusText = createTweetStatus(report, config.twitter.statusTemplate);
+    let flowItemsLocFiltered = filterFlowItemsByLocation(flowItems, botConfig);
+    let report = generateReport(flowItemsLocFiltered, botConfig);
+    let statusText = createTweetStatus(report, botConfig.statusTemplate);
     
-    if (config.steps.log) {
+    if (botConfig.log) {
       console.log("Logging placeholder");
     }
 
     if (report.speedsCount > 0) {
-      if (config.steps.tweet) {
+      if (botConfig.tweet) {
         tweet(statusText, (err, data) => {
           if (err)
             console.error('Tweet failed', err);
@@ -45,6 +59,7 @@ function followUpFlowResponse(data) {
       console.log('No speeding cars found', report);
     }
 }
+
 
 /**
  * Processes the raw data into easier flow items
@@ -120,13 +135,13 @@ function generateReport (flowItems, limits) {
   if (limits && limits.limitKm)
     limitKm = limits.limitKm;
   else if (limits && limits.limitMi)
-    limitKm =  limits.limitMi * config.misc.miles2km;
+    limitKm =  limits.limitMi * convertions.miles2km;
 
   let spdPredicate = limitKm ? (spd) => spd > limitKm : (spd) => true ;
 
 
   report['limitKm'] = limitKm ? Math.round(limitKm) : 'none';
-  report['limitMi'] = limitKm ? Math.round(limitKm * config.misc.km2miles) : 'none';
+  report['limitMi'] = limitKm ? Math.round(limitKm * convertions.km2miles) : 'none';
 
   // For now we will only process one road/section
   let flowItem = flowItems[0];
@@ -140,7 +155,7 @@ function generateReport (flowItems, limits) {
   let speedsKm = flowItem.samples
                   .filter(smp => limits.CN_predicate(smp.CN) && spdPredicate(smp.SU))
                   .map(smp => Math.round(smp.SU));
-  let speedsMi = speedsKm.map(spd => Math.round(spd * config.misc.km2miles));
+  let speedsMi = speedsKm.map(spd => Math.round(spd * convertions.km2miles));
   let speedsCount = speedsKm.length;
 
   report['status']      = true;
@@ -194,8 +209,8 @@ function tweet(statusText) {
   var oauth = new OAuth.OAuth(
     'https://api.twitter.com/oauth/request_token',
     'https://api.twitter.com/oauth/access_token',
-    config.twitter.appKey,
-    config.twitter.appSecret,
+    authConfig.twitter.appKey,
+    authConfig.twitter.appSecret,
     '1.0A',
     null,
     'HMAC-SHA1'
@@ -205,12 +220,13 @@ function tweet(statusText) {
   //let body = ({'status':'Hello!'});
 
   oauth.post('https://api.twitter.com/1.1/statuses/update.json',
-      config.twitter.accessToken,
-      config.twitter.accessTokenSecret,
+      authConfig.twitter.accessToken,
+      authConfig.twitter.accessTokenSecret,
       body,
       "application/json",
       function(error, data, resp) {
-          console.log('\nPOST status:\n');
-          console.log(error || data);
+          // console.log('\nPOST status:\n');
+          // console.log(error || data);
+          console.log('Tweet succedded:', statusText);
   });
 }

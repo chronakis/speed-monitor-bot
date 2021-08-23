@@ -1,59 +1,100 @@
 # speed-monitor-bot #
 
-This work is the result of attempting to create a node.js clone of the speederbot (TODO: INSERT LINK), a twitter bot that uses here maps traffic flow data to detect speeding in a given road.
-
-Writing the clone was trivial and the code is still here but I had no confidence that the data interpreation was correct. There were two very nagging questions:
-
-1. What is the exact location that I am getting speed data for?
-2. Are those data really vehicle speeds?
-
-This project is the result of my attempt to answer those questions and it is still a twitter bot, if you are looking for one (TODO: The road/segment filter needs an update).
+A pure node js twitter bot that reports average speeds based on HERE Maps data, inspired by the original [speederbot](https://github.com/BerkshireCar/SpeederBot). It does not depend to any third party service and you can run it from your computer or your Rasberry PI or whatever device you can put node in.
 
 
-## 1. What do the traffic flow data mean? ##
+## Quick start ###
 
-Here maps split roads into segments and further, segments may be split in smaller segments. For example, *A1* has a segment *A503/Seven Sisters Road/Parkhurst Road* with a North direction. It is *1.56276* Km long and the flow data are reported for two subsections, one *0.21* and one *1.35* Km long.
+There are two tools in this project:
 
-For each of those sections/subsections they report a set of numbers. The most important for speed monitoring are the two following:
-
-* **SU**: Speed uncut, or the average speed of the traffic without taking into account the speed limit. We don't know how many vehicles have been sampled. Could be one, could be many.
-* **CN**: The confidence value. The important thing is "**A value greater than 0.7 and less than or equal to 1.0 indicates real time speeds**" (source: https://developer.here.com/documentation/traffic/dev_guide/topics/common-acronyms.html)
+1. The `Flow data explorer`: A web tool used to find the correct road & section to filter the data.
+2. The `speeder-bot`: A javascript bot that reports on twitter when the flow data indicate average speeds above a given limit.
 
 
-So we can more or less assume that the average speed for a subsection of a given distance is the value provided by SU, when `0.7 < CN <= 1.0`
+### Pre-requisites ###
 
-## 2. How do I know what section of the road I am looking at? ##
+You will need.
 
-This is what bothered me most in my quest to find data for Regent's park. So I ended up writing this large (not realted to the bot) piece of code that let's you explore an area of the map, click on roads and segments, see exactly where they are and get a sample of the speed data.
-
-You will need to clone/download the project and run it behind a web server. If you have python, you can switch to the directory of the project and then run `python -m SimpleHTTPServer 8000` to run a web server in port 8000. Then go in your browser to `http://localhost:8000/test.html`
-
-The results will look like ![the screenshot here](https://user-images.githubusercontent.com/493791/130260565-a6a25dd2-b054-4af4-be4c-cd91e3f9945f.png).
-
-## Configuration ##
-
-1. Copy the file named `config.js.template` as `config.js` and edit it.
-2. Add your twitter keys, if you want to use the bot
-3. Set the `apiKey` and `bbox` in the `here.params`. Get a starting bbox here https://developer.here.com/documentation/examples/rest/traffic/traffic-flow-bounding-box
-4. TODO: I am rewriting the filter that identifies the road and segment to tweet about. Please bear with me for a day or two. Thank you.
-
-## Run the road finder and sampler ##
-
-Just load the `test.html` on your browser. But you will need to serve the page through some simple server, such as a python one.
+* A HERE Maps developer account an the API KEY
+  * Go [here](https://developer.here.com/), get started for free and create a "Freemium" account and API key. This is instant.
+* A twitter developer account.
+  * Go [here](https://developer.twitter.com/en/apply-for-access) and apply for a hobbyist account. It takes a few ours to get it approved, but you run the bot in "dry run" mode and print the twitter status, so don't wait for it.
+* `node js` installed. You can do this either globally (with an installer) or inside the folder folder (with a zip). The installer will take care of everything. If you do the manual way, just don't for get to make sure the PATH is updated for node and npm. Node Js can be found [here](https://nodejs.org/en/download/).
+* A simple http-server. I am suggesting the node module http-server to keep things tidy. To install it, type in the console `npm install http-server -g`. Again, you can choose to install this in your project folder in which case you probably know what you are doing.
 
 
-## Run the node.js bot ##
+### I. Configuration ###
+
+#### Run the explorer to get the location filter ####
+
+1. `auth-confi.js`: Copy the file `auth-config.js.template` into `auth-config.js`
+2. Edit `auth-config.js` and replace your api keys and secrets. You can leave twitter for later.
+3. `bot-confi.js`: Copy the file `bot-config.js.template` into `bot-config.js`
+4. Set a `bbox`: This is the bounding box. Go to [here](https://developer.here.com/documentation/examples/rest/traffic/traffic-flow-bounding-box) and draw a bouding box (click at the parameters section, bbox input to pop out the map). Copy the value from the text box and paste it to the bot-config.js, bbox (inside the quotes).
+5. Start the server. From the command line, inside the project's folder run `http-server`. This will run the http-server in port 8080. If you need another port, use `http-server --port=8000` or whatever suits you.
+6. Open your browser and type: `http://localhost:8080/explore.html`. This will load the explorer.
+
+##### How to use the explorer #####
+
+The explorer screen looks like this:
+
+![the screenshot here](https://user-images.githubusercontent.com/493791/130260565-a6a25dd2-b054-4af4-be4c-cd91e3f9945f.png)
+
+1. On the left, you will see a list of roads: sections.
+2. Click on a section and this will
+   1. Draw the segment on the map on the right.
+   2. You may need to zoom out as the section may be well outside the bbox.
+   3. Fill a table with sub-section and speeds per subsection. **All speeds are in metric**.
+   4. Show at the top the LI and PC road and section identities.
+3. When satisfied, note the LI and PC values down.
+
+#### Finalise configuration ####
+
+Edit the `bot-config.js` and add the filter and the speed limit
+
+1. Set the LI_filter & PC_filter from the value of the explorer. Note: PC_filter is a number not a string.
+2. Set your speed limit. `limitKm` or `limitMi`, whatever you want. Only speeds above the limite will be reported by the bot.
+3. It is recommended to set `tweet: false` at this stage so that you can test your status messages.
+
+### II. Run the bot ###
+
 ```
-node index.js
+node speeder-bot.js
 
 ```
 
-Please note that the bod has an identity crisis at the moment. I am fixing two things:
+If the `bot-config.js` had `tweet: false`, the bot will do everything but will only print the status message.
 
-1. The filter so that it can identify the road to tweet about
-2. A logger to log the data collected into the disk.
+### III. Configure the message and run with twitter ###
 
-#### Sources ####
+Once you get your twitter keys.
+
+1. Edit `auth-config.js` and set your four twitter credentials
+2. Change the `bot-config.js` to `tweet: true` to enable twittter
+3. Edit the `bot-config.js` `statusTemplate`. The available values to use are in the comment, e.g. report.limitMi. To add a value, use e.g. ${report.limitMi}. Please not some values are arrays so they may not work well.
+4. Run as usual. `node speeder-bot.js`. Every run will generate a tweet.
+
+### IV. Scheduled runs ###
+
+Use cron on a un\*x based system or the task scheduler on windows. I am not sure about any API limits but HERE Maps fastest refresh is 3 minutes anyway, so no point runnign ealiest.
+
+
+## The future ##
+
+Unfortunatly, when I started this project I did not know that HERE Maps did not report data for Regent's Park, London that I was interested in. I found out after I wrote the first draft of the exlorer. I finished this project only because I got it started and it was interesting playing with map and traffic data, something I haven't done before. I don't have any personal use so I am not that motivated. I am however open to suggestions.
+
+The next things I may implement are:
+
+1. Get the bounding box from the current map view. The HERE Maps page is herendous.
+2. A speed-audit-bot that will monitor some given roads and create a database of recorded average speeds for analysis.
+
+
+## Thanks & Credits ##
+
+Thanks to the original [speederbot](https://github.com/BerkshireCar/SpeederBot) - [@BerkshireCar](https://twitter.com/BerkshireCar) that kickstarted this work.
+
+
+## Sources ##
 
 * https://developer.here.com/documentation/traffic/dev_guide/topics/common-acronyms.html
 * https://traffic.ls.hereapi.com/traffic/6.0/xsd/flow3.2.2.xsd?apiKey=YOUR_API_KEY_HERE
