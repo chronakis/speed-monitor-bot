@@ -27,6 +27,10 @@ You will need.
 
 #### Run the explorer to get the location filter ####
 
+**This step is not necessary any more, unless you wamt to test your configuration.**
+
+Visit [speedbot.bikesnbytes.net](https://speedbot.bikesnbytes.net/) for an online verion of the explorer and skip to "How to use the exlorer below".
+
 1. `auth-confi.js`: Copy the file `auth-config.js.template` into `auth-config.js`
 2. Edit `auth-config.js` and replace your api keys and secrets. You can leave twitter for later.
 3. `bot-confi.js`: Copy the file `bot-config.js.template` into `bot-config.js`
