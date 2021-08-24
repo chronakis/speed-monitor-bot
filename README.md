@@ -27,17 +27,14 @@ You will need.
 
 #### Run the explorer to get the location filter ####
 
-**This step is not necessary any more, unless you wamt to test your configuration.**
-
-Visit [speedbot.bikesnbytes.net](https://speedbot.bikesnbytes.net/) for an online verion of the explorer and skip to "How to use the exlorer below".
-
 1. `auth-confi.js`: Copy the file `auth-config.js.template` into `auth-config.js`
 2. Edit `auth-config.js` and replace your api keys and secrets. You can leave twitter for later.
 3. `bot-confi.js`: Copy the file `bot-config.js.template` into `bot-config.js`
 4. Set a `bbox`: This means bounding box and it is the rectangle on the map that we will be requesting data for.
    * Update: The latest explore commit allows you to set the current map as a bounding box.
    * If you need a different shape, go to [here maps](https://developer.here.com/documentation/examples/rest/traffic/traffic-flow-bounding-box) and draw a bouding box (click at the parameters section, bbox input to pop out the map). Copy the value from the text box and paste it to the bot-config.js, bbox (inside the quotes).
-5. Start the server. From the command line, inside the project's folder run `http-server`. This will run the http-server in port 8080. If you need another port, use `http-server --port=8000` or whatever suits you.
+5. Visit [speedbot.bikesnbytes.net](https://speedbot.bikesnbytes.net/) for an online verion of the e.xplorer. Skip the two next steps
+5. Start the server. From the command line, inside the project's folder run `http-server`. This will run the http-server in port 808 . If you need another port, use `http-server --port=8000` or whatever suits you.
 6. Open your browser and type: `http://localhost:8080/explore.html`. This will load the explorer.
 
 ##### How to use the explorer #####
