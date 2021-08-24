@@ -2,12 +2,20 @@ var map;                  // The map
 var trdata;               // The trafic data for exploring through the console
 var flowItemIndex = {};   // The flow items indexd by he LI+'-'+PC string
 var shpObjects = [];      // The currently displayed shape objects so that the can be deleted.
+var paramCookieKey = 'speedbot-param-cookie';
 
 // TODO Remove the map, the map is good to be global
 
 $( document ).ready(function() {
     // setMapViewBounds(map, botConfig.bbox);
     // getFlowData(here.apiKey, botConfig.bbox);
+    let params = loadPramsCookie();
+    if (params && params.apiKey && params.bbox) {
+      updateMap();
+      // if (params.li && params.pc) {
+      //   drawFlowItem(params.li + '-' + params.pc);
+      // }
+    }
 });
 
 /**
@@ -81,6 +89,7 @@ function drawFlowItem(key) {
   });
 
   previewSpeedData(key);
+  saveParamsCookie();
 }
 
 function previewSpeedData(key) {
@@ -118,6 +127,8 @@ function updateMap() {
   }
   setMapViewBounds(map, bbox);
   getFlowData(apiKey, bbox);  
+
+  saveParamsCookie();
 }
 
 /**
@@ -132,6 +143,38 @@ function mapToBBox () {
   $('#results').html('');
   $('#li').val('');
   $('#pc').val('');
-  getFlowData(here.apiKey, bbox);  
+  getFlowData(here.apiKey, bbox);
+  saveParamsCookie();
 }
 
+
+function saveParamsCookie() {
+  let params = {
+    apiKey: $('#apiKey').val(),
+    bbox: $('#bbox').val(),
+    li: $('#li').val(),
+    pc: $('#pc').val()
+  };
+  console.log('saving cookie', params, JSON.stringify(params),);
+  setCookie(paramCookieKey, encodeURIComponent(JSON.stringify(params)), 365);
+}
+
+function loadPramsCookie() {
+  let val = getCookie(paramCookieKey);
+  if (!val || val.trim().length == 0)
+    return;
+
+  let params = JSON.parse(decodeURIComponent(val));
+  console.log('loaded cookie', val, params);
+
+  if (params.apiKey)    $('#apiKey').val(params.apiKey);
+  if (params.bbox)      $('#bbox').val(params.bbox);
+  if (params.li)        $('#li').val(params.li);
+  if (params.pc)        $('#pc').val(params.pc);
+
+  return params;
+}
+
+function eraseParamsCookie() {
+  setCookie(paramCookieKey)
+}

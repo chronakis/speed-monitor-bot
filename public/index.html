@@ -111,12 +111,12 @@
       <input type="button" name="go" id="go" value="Fetch map and traffic data" onclick="updateMap()"/>
       <input type="button" name="Set bbox from map" id="bboxFromMap" value="Set bbox from current map view" onclick="mapToBBox()"/>
     </div>
-    <!--
     <div class="inputpar">
+    <!--
       <label for="cookie">Auto save to a cookie: </label><input type="checkbox" name="cookie" id="cookie" value="1" checked="true">
-      <input type="button" id="eraseCokie" value="Erase cookie" name="eraseCookie"/>
-    </div>
     -->
+      <input type="button" id="eraseCokie" value="Erase cookie" name="eraseCookie" onclick="eraseParamsCookie()" />
+    </div>
     <p>Click on a segment on the left to plot it on the map on the right. It may be out of view so you may need to pan/zoom out. Your filter values for that segment will it the box at the bottom below. BTW, If you want to inspect the flow data, they are in the global variable called <b>trdata</b></p>
   </div>
   <div id="test-cont">
