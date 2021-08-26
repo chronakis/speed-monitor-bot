@@ -52,23 +52,31 @@ function previewResults(data) {
 
   let div = $('#results');
   let roadways = data.RWS[0].RW;
-  roadways.forEach(rw => {
-    div.append(`<b>${rw.DE}</b>: `);
-    let flowItems = rw.FIS
-      .flatMap(fis => fis.FI)
-      .map(e => ({
-        rw: {LI: rw.LI, DE: rw.DE},
-        tmc: e.TMC,
-        samples: (e.CF.flatMap(ve => ve.SSS ? ve.SSS.SS.map(ve2 => {ve2['CN'] = ve.CN; return ve2}) : ve)),
-        shapes: e.SHP
-      }));
+  roadways
+    .sort((rw1, rw2) => {
+      let r1 = rw1.DE.localeCompare(rw2.DE);
+      if (r1 != 0)
+        return r1;
+      return (rw1.LI.localeCompare(rw2.LI)); // Directional compare
+    })
+    .forEach(rw => {
+      div.append(`<b>${rw.DE}</b>: `);
+      let flowItems = rw.FIS
+        .flatMap(fis => fis.FI)
+        .map(e => ({
+          rw: {LI: rw.LI, DE: rw.DE},
+          tmc: e.TMC,
+          samples: (e.CF.flatMap(ve => ve.SSS ? ve.SSS.SS.map(ve2 => {ve2['CN'] = ve.CN; return ve2}) : ve)),
+          shapes: e.SHP
+        }))
+        ;
 
-    let text = flowItems.map( fi => {
-      let key = rw.LI + '-' + fi.tmc.PC;
-      flowItemIndex[key] = fi;
-      return `<a href="#" title="${key}" onclick="drawFlowItem('${key}'); return false;">${fi.tmc.DE}</a>`
-    }).join(', ');
-    div.append(text +'\n');
+      let text = flowItems.map( fi => {
+        let key = rw.LI + '-' + fi.tmc.PC;
+        flowItemIndex[key] = fi;
+        return `<a href="#" title="${key}" onclick="drawFlowItem('${key}'); return false;">${fi.tmc.DE}</a>`
+      }).join(', ');
+      div.append(text +'\n');
   });
 }
 
