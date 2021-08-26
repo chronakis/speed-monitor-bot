@@ -33,9 +33,9 @@ function addShapeToMap(map, shapeString) {
 function addPolylineToMap(map, coordsArray) {
   var lineString = new H.geo.LineString();
   coordsArray.forEach( c => lineString.pushPoint(c));
-  
+
   let poly = new H.map.Polyline(
-    lineString, { style: { lineWidth: 4, strokeColor: '#F00' }}
+    lineString, { style: { lineWidth: 6, strokeColor: '#D33', lineHeadCap: 'arrow-head', lineTailCap: 'arrow-tail' }}
   );
   map.addObject(poly);
   return poly;
