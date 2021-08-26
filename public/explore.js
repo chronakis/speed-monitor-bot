@@ -3,6 +3,13 @@ var trdata;               // The trafic data for exploring through the console
 var flowItemIndex = {};   // The flow items indexd by he LI+'-'+PC string
 var shpObjects = [];      // The currently displayed shape objects so that the can be deleted.
 var paramCookieKey = 'speedbot-param-cookie';
+var dataUnits;            // Will hold the units of the returned data
+
+const conv = {
+  km2miles: 0.6213712,
+  miles2km: 1.609344
+};
+
 
 // TODO Remove the map, the map is good to be global
 
@@ -21,7 +28,9 @@ $( document ).ready(function() {
 /**
  * Retrieves the flow data and then processes them
  */
-function getFlowData(apiKey, bbox) {
+function getFlowData(apiKey, bbox, units) {
+  if (units != 'imperial') units = 'metric';
+
   $.ajax({
     url: 'https://traffic.ls.hereapi.com/traffic/6.1/flow.json',
     type: 'GET',
@@ -30,10 +39,15 @@ function getFlowData(apiKey, bbox) {
     data: {
       apiKey: apiKey,
       bbox: bbox,
-      responseattributes: 'sh'
+      responseattributes: 'sh',
+      units: units
     },
     success: function (data) {
       trdata = data;
+      if (data.UNITS != units) {
+        alert('Requested and returned units mismatch');
+      }
+      dataUnits = data.UNITS;
       console.log('The traffic data can be found in the global variable "trdata"');
 
       $('#bbox').val(bbox);
@@ -51,6 +65,8 @@ function previewResults(data) {
   // then offer a couple of filters as input boxes to be able to get to the one you want
 
   let div = $('#results');
+  div.append('<div class="roadHeader">Click a road section to plot it on the map and see the speed data. Pan or zoom out, if you can\'t see it. The roads extend beyond the bounding box.</div>');
+
   let roadways = data.RWS[0].RW;
   roadways
     .sort((rw1, rw2) => {
@@ -101,15 +117,38 @@ function drawFlowItem(key) {
 }
 
 function previewSpeedData(key) {
+  let uSpd; let uLen; let uConv;
+  if (dataUnits == 'metric') {
+    uSpd = 'Km/h';
+    uLen = 'Km';
+    uConv = 1;
+  }
+  else {
+    uSpd = 'mph';
+    uLen = 'mi';
+    uConv = conv.km2miles;
+  }
+
   $('#flow-data').html('');
   let flowItem = flowItemIndex[key];
   console.log('flowItem', flowItem);
 
-  let headers = "<tr><th>Road</th><th>Segment</th><th>Seg Length (LE)</th><th>Sub length (LE)</th><th>Confidence (CN)</th><th>Speed (SU)</th></tr>";
+  let headers = '<tr><th>Road</th>'
+              + '<th>Section</th>'
+              + '<th>Section<br/>length (' + uLen + ')</th>'
+              + '<th>Subsection<br/>length (' + uLen + ')</th>'
+              + '<th>Confidence (CN)</th>'
+              + '<th>Speed (' + uSpd + ')</th></tr>';
   let text = flowItem.samples.reduce((acc, val) => 
-    acc + `<tr><td>${flowItem.rw.DE}</td><td>${flowItem.tmc.DE}</td><td>${flowItem.tmc.LE}</td><td>${val.LE ? val.LE : ''}</td><td>${val.CN}</td><td>${val.SU}</td></tr>`,
+    acc + `<tr><td>${flowItem.rw.DE}</td>`
+        + `<td>${flowItem.tmc.DE}</td>`
+        + `<td class="number">${flowItem.tmc.LE}</td>`
+        + `<td class="number">${val.LE ? val.LE : ''}</td>`
+        + `<td class="number">${val.CN}</td>`
+        + `<td class="number">${val.SU}</td></tr>`,
     '');
-  $('#flow-data').html(`<table>${headers}${text}</table`);
+
+  $('#flow-data').html(`<table id="speedTable">${headers}${text}</table`);
 }
 
 /**
@@ -118,6 +157,7 @@ function previewSpeedData(key) {
 function updateMap() {
   let bbox = $('#bbox').val();
   let apiKey = $('#apiKey').val();
+  let units = $('input:radio[name="units"]:checked').val();
 
   if (! apiKey || apiKey == '') {
     alert('API KEY is missing');
@@ -134,7 +174,7 @@ function updateMap() {
     $('#pc').val('');
   }
   setMapViewBounds(map, bbox);
-  getFlowData(apiKey, bbox);  
+  getFlowData(apiKey, bbox, units);  
 
   saveParamsCookie();
 }
@@ -145,13 +185,15 @@ function updateMap() {
 function mapToBBox () {
   let b = map.getViewModel().getLookAtData().bounds.getBoundingBox();
   let bbox = `${b.la},${b.ca};${b.ma},${b.ia}`;
+  let units = $('input:radio[name="units"]:checked').val();
+
   $('#bbox').val(bbox);
 
   clearMap(shpObjects);
   $('#results').html('');
   $('#li').val('');
   $('#pc').val('');
-  getFlowData(here.apiKey, bbox);
+  getFlowData(here.apiKey, bbox, units);
   saveParamsCookie();
 }
 
@@ -160,6 +202,7 @@ function saveParamsCookie() {
   let params = {
     apiKey: $('#apiKey').val(),
     bbox: $('#bbox').val(),
+    units: $('input:radio[name="units"]:checked').val(),
     li: $('#li').val(),
     pc: $('#pc').val()
   };
@@ -179,10 +222,12 @@ function loadPramsCookie() {
   if (params.bbox)      $('#bbox').val(params.bbox);
   if (params.li)        $('#li').val(params.li);
   if (params.pc)        $('#pc').val(params.pc);
+  if (params.units)     $('#' + params.units).prop('checked', true);
 
   return params;
 }
 
 function eraseParamsCookie() {
+  $('#apiKey').val('');
   setCookie(paramCookieKey)
 }
