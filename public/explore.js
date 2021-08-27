@@ -4,6 +4,7 @@ var flowItemIndex = {};   // The flow items indexd by he LI+'-'+PC string
 var shpObjects = [];      // The currently displayed shape objects so that the can be deleted.
 var paramCookieKey = 'speedbot-param-cookie';
 var dataUnits;            // Will hold the units of the returned data
+var resultsActiveTab;
 
 const conv = {
   km2miles: 0.6213712,
@@ -51,20 +52,30 @@ function getFlowData(apiKey, bbox, units) {
       console.log('The traffic data can be found in the global variable "trdata"');
 
       $('#bbox').val(bbox);
-      previewResults(data);
+      populateRoadsTable(data);
+
+      $('#tab-button-manual').click();      
     }
   });
 }
 
+
 /**
- * Preview the results (roads and sectioins)
+ * Clears the table of the speed data
  */
-function previewResults(data) {
+function clearSpeedTable() {
+  $('#flow-data-inner').html('');
+}
+
+/**
+ * Populate the roads and sections
+ */
+function populateRoadsTable(data) {
   // need to draw a tree of:
   //   RW.DE -> TMC.DE + draw(SHPs)
   // then offer a couple of filters as input boxes to be able to get to the one you want
 
-  let div = $('#results');
+  let div = $('#results-manual');
   div.append('<div class="roadHeader">Click a road section to plot it on the map and see the speed data. Pan or zoom out, if you can\'t see it. The roads extend beyond the bounding box.</div>');
 
   let roadways = data.RWS[0].RW;
@@ -81,9 +92,11 @@ function previewResults(data) {
         .flatMap(fis => fis.FI)
         .map(e => ({
           rw: {LI: rw.LI, DE: rw.DE},
-          tmc: e.TMC,
+          // Add thE average section SU and SP
+          tmc: extObj(e.TMC, {SU: e.CF[0].SU, SP: e.CF[0].SP}),
           samples: (e.CF.flatMap(ve => ve.SSS ? ve.SSS.SS.map(ve2 => {ve2['CN'] = ve.CN; return ve2}) : ve)),
-          shapes: e.SHP
+          // Add speed data to the shapes. Ignore sub sections for now
+          shapes: e.SHP.map(so => {so['SU'] = e.CF[0].SU; return so})
         }))
         ;
 
@@ -94,6 +107,89 @@ function previewResults(data) {
       }).join(', ');
       div.append(text +'\n');
   });
+}
+
+function drawManual() {
+  clearMap(shpObjects);  
+}
+
+const heatmapColours = {
+  20:  {color: '#55eefc', range: '0-20', order: 1},
+  30:  {color: '#55b7fc', range: '21-30', order: 2},
+  40:  {color: '#f4ed66', range: '31-40', order: 3},
+  50:  {color: '#3d5ce5', range: '41-50', order: 4},
+  60:  {color: '#8758dd', range: '51-60', order: 5},
+  70:  {color: '#d147e0', range: '61-70', order: 6},
+  200: {color: '#f42c61', range: '71-200', order: 7},
+  'n/a': {color: '#000000', range: 'no data/error', order: 8}
+};
+/*
+ * FIXME: Need a metric version
+ */
+function colorFromScale(spd, units) {
+  let colour;
+  if (spd <= 0) // error
+    colour = heatmapColours['n/a'].color;
+  else if ( spd <= 20)
+    colour = heatmapColours[20].color;
+  else if (spd <= 30)
+    colour = heatmapColours[30].color;
+  else if (spd <= 40)
+    colour = heatmapColours[40].color;
+  else if (spd <= 50)
+    colour = heatmapColours[50].color;
+  else if (spd <= 60)
+    colour = heatmapColours[60].color;
+  else if (spd <= 70)
+    colour = heatmapColours[70].color;
+  else if (spd <= 200)
+    colour = heatmapColours[200].color;
+  else
+    colour = heatmapColours['n/a'].color;
+
+
+  return colour;
+}
+
+/**
+ * Draws the heatma on the map
+ */
+function drawHeatmap() {
+  clearMap(shpObjects);
+  let qd = $('input:radio[name="qd"]:checked').val();
+
+  Object.values(flowItemIndex)
+        .filter(fi => fi.rw.LI.includes(qd))
+        .forEach(flowItem => {
+          // let shapes = flowItem.shapes.map(so => so.value[0]);
+          // shapes.forEach( shp => {
+          //   let so = addShapeToMap(map, shp);
+          //   shpObjects.push(so);
+          // });
+          flowItem.shapes.forEach( shp => {
+            let so = addShapeToMap(map, shp.value[0], colorFromScale(shp.SU), 4);
+            shpObjects.push(so);
+          });
+        });
+}
+
+/**
+ * Draws the speeding sections on the map (SU > SP)
+ */
+function drawSpeeding() {
+  clearMap(shpObjects);
+
+  let qd = $('input:radio[name="qd"]:checked').val();
+
+  Object.values(flowItemIndex)
+        .filter(fi => fi.rw.LI.includes(qd))
+        .filter(fi => fi.tmc.SU > fi.tmc.SU)
+        .forEach(flowItem => {
+          flowItem.shapes.forEach( shp => {
+            let so = addShapeToMap(map, shp.value[0], '#F00', 6);
+            shpObjects.push(so);
+          });
+        });
 }
 
 
@@ -169,7 +265,7 @@ function updateMap() {
   }
   else {
     clearMap(shpObjects);
-    $('#results').html('');
+    $('#results-manual').html('');
     $('#li').val('');
     $('#pc').val('');
   }
@@ -186,14 +282,15 @@ function mapToBBox () {
   let b = map.getViewModel().getLookAtData().bounds.getBoundingBox();
   let bbox = `${b.la},${b.ca};${b.ma},${b.ia}`;
   let units = $('input:radio[name="units"]:checked').val();
+  let apiKey = $('#apiKey').val();
 
   $('#bbox').val(bbox);
 
   clearMap(shpObjects);
-  $('#results').html('');
+  $('#results-manual').html('');
   $('#li').val('');
   $('#pc').val('');
-  getFlowData(here.apiKey, bbox, units);
+  getFlowData(apiKey, bbox, units);
   saveParamsCookie();
 }
 
@@ -206,7 +303,7 @@ function saveParamsCookie() {
     li: $('#li').val(),
     pc: $('#pc').val()
   };
-  console.log('saving cookie', params, JSON.stringify(params),);
+  //console.log('saving cookie', params, JSON.stringify(params),);
   setCookie(paramCookieKey, encodeURIComponent(JSON.stringify(params)), 365);
 }
 
@@ -216,7 +313,7 @@ function loadPramsCookie() {
     return;
 
   let params = JSON.parse(decodeURIComponent(val));
-  console.log('loaded cookie', val, params);
+  //console.log('loaded cookie', val, params);
 
   if (params.apiKey)    $('#apiKey').val(params.apiKey);
   if (params.bbox)      $('#bbox').val(params.bbox);
@@ -230,4 +327,39 @@ function loadPramsCookie() {
 function eraseParamsCookie() {
   $('#apiKey').val('');
   setCookie(paramCookieKey)
+}
+
+function resTab(tab, name) {
+  $('span.res-tab').removeClass('active');
+  $('div.results-tab-content').hide();
+
+  $(tab).addClass('active');
+  $('#results-' + name).show();
+  resultsActiveTab = name;
+
+  if (name == 'heatmap') {
+    $('div#qd-div').show();
+    drawHeatmap();
+  }
+  else if (name == 'speeding') {
+    $('div#qd-div').show();
+    drawSpeeding();
+  }
+  else {
+    $('div#qd-div').hide();
+    drawManual();
+  }
+}
+
+function changeQD(qdInput) {
+  let name = resultsActiveTab;
+  if (name == 'heatmap')
+    drawHeatmap();
+  else if (name == 'speeding')
+    drawSpeeding();
+}
+
+function extObj(obj, props) {
+  Object.keys(props).forEach(key => obj[key] = props[key]);
+  return obj;
 }

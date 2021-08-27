@@ -1,0 +1,163 @@
+body {
+  font-family: sans-serif;
+  font-size: 14px;
+}
+
+p {
+	line-height: 1.5em;
+	padding: 0 .25em;
+}
+#test-cont {
+  position: relative;
+}
+#flow-cont {
+  position: relative;
+}
+#map {
+  position: absolute;
+  right: 0px;
+  top: 0px;
+  width: 59%;
+  height: 460px;
+  border: 1px solid #cdced0;
+  background-color: #e4e6e9;
+}
+
+#results-cont {
+  width:  40%;
+  height: 450px;
+  border: thin solid grey;
+  background: #ddd;
+}
+
+#results-manual {
+  padding: 0.5em;
+  line-height: 1.6em;
+  white-space: pre-wrap;
+  overflow: scroll;
+  height: 100%;
+}
+
+#results-speeding-content {
+  padding: 0.5em;
+  line-height: 1.6em;
+  white-space: pre-wrap;
+  overflow: scroll;
+}
+
+.results-tab-content {
+	height: 60%;
+}
+
+#qd-div {
+	height: 40%;	
+}
+#results-nav {
+	width: 100%;
+	text-align: center;
+	padding: 0;
+	border-bottom: thin dotted white;
+}
+span.res-tab {
+	display:  inline-block;
+	padding:  .5em 1em;
+	margin: 0 auto;
+	cursor: pointer;
+}
+span.res-tab:hover {
+	background: #eef;
+}
+span.res-tab.active {
+	font-weight: bold;
+	background: #fff;
+	border-bottom: thin solid black;
+}
+
+
+#flow-data {
+  position: absolute;
+  right: 0px;
+  top: 0px;
+  width: 59%;
+  min-height: 20px;
+  background: #eef;
+  border: thin solid #cce;
+}
+#flow-data-inner {
+
+}
+#flow-data table {
+  border-collapse: collapse; 
+  font-family: monospace;
+}
+#flow-data th, #flow-data td {
+  border: 1px solid #fff;
+  padding: .3em .6em;
+}
+
+.hspace {
+  display: inline-block;
+  width:  2em;
+}
+.hspace2 {
+  display: inline-block;
+  width:  6em;
+}
+.infopar {
+  position: relative;
+  border:  thin solid #ccc;
+  padding: .3em .2em;
+}
+
+label.inputrow, span.inputrow {
+  width: 180px;
+  display: inline-block;
+}
+
+
+.inputpar {
+  margin: .4em;
+}
+
+.parbutton {
+  position: absolute;
+  right:  .3em;
+  bottom: .3em;
+}
+
+#config-output {
+  width: 40%;
+  background: #efe;
+  border: thin solid #cfc;
+}
+.roadHeader {
+  border-bottom: thin dashed grey;
+  margin-bottom: .5em;
+}
+
+#speedTable {
+  width: 100%;
+}
+
+#speedTable .number {
+  text-align: right;
+}
+
+#header {
+  font-size: 1.2em;
+  margin-bottom: .3em;
+  padding: .5em;
+  background: #7CE;
+  border: thin solid #cce;
+}
+#github {
+  float:  right;
+}
+#header a:link, #header a:visited {
+  text-decoration: none;
+  color: blue;
+}
+
+.heatmap-range td {
+	margin: .1em .2em;
+}

@@ -18,6 +18,7 @@
   <script src="here-api.js" crossorigin="anonymous"></script>
   <script src="cookie.js" crossorigin="anonymous"></script>
   <script src="explore.js" crossorigin="anonymous"></script>
+  <link rel="stylesheet" type="text/css" href="explore.css" />
 
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-20549SQ8SR"></script>
   <script>
@@ -28,120 +29,6 @@
     gtag('config', 'G-20549SQ8SR');
   </script>
 
-<style>
-body {
-  font-family: sans-serif;
-  font-size: 14px;
-}
-#test-cont {
-  position: relative;
-}
-#flow-cont {
-  position: relative;
-}
-#map {
-  position: absolute;
-  right: 0px;
-  top: 0px;
-  width: 59%;
-  height: 460px;
-  border: 1px solid #cdced0;
-  background-color: #e4e6e9;
-}
-#results {
-  width:  39%;
-  height: 450px;
-  border: thin solid grey;
-  background: #ddd;
-  padding: 0.5em;
-  line-height: 1.6em;
-  white-space: pre-wrap;
-  overflow: scroll;
-}
-#flow-data {
-  position: absolute;
-  right: 0px;
-  top: 0px;
-  width: 59%;
-  min-height: 20px;
-  background: #eef;
-  border: thin solid #cce;
-}
-#flow-data-inner {
-
-}
-#flow-data table {
-  border-collapse: collapse; 
-  font-family: monospace;
-}
-#flow-data th, #flow-data td {
-  border: 1px solid #fff;
-  padding: .3em .6em;
-}
-
-.hspace {
-  display: inline-block;
-  width:  2em;
-}
-.hspace2 {
-  display: inline-block;
-  width:  6em;
-}
-.infopar {
-  position: relative;
-  border:  thin solid #ccc;
-  padding: .3em .2em;
-}
-
-label.inputrow, span.inputrow {
-  width: 180px;
-  display: inline-block;
-}
-
-
-.inputpar {
-  margin: .4em;
-}
-
-.parbutton {
-  position: absolute;
-  right:  .3em;
-  bottom: .3em;
-}
-
-#config-output {
-  width: 40%;
-  background: #efe;
-  border: thin solid #cfc;
-}
-.roadHeader {
-  border-bottom: thin dashed grey;
-  margin-bottom: .5em;
-}
-
-#speedTable {
-  width: 100%;
-}
-
-#speedTable .number {
-  text-align: right;
-}
-
-#header {
-  font-size: 1.2em;
-  margin-bottom: .3em;
-  padding: .5em;
-  background: #7CE;
-  border: thin solid #cce;
-}
-#github {
-  float:  right;
-}
-#header a:link, #header a:visited {
-  text-decoration: none;
-  color: blue;
-}
-</style>
 </head>
 <body>
   <div id="header">
@@ -179,7 +66,39 @@ label.inputrow, span.inputrow {
   </div>
   <div id="test-cont">
     <div id="results-cont">
-      <div id="results"></div>
+      <div id="results-nav">
+        <span id="tab-button-manual" class="res-tab" onclick="resTab(this, 'manual');">Manual selection</span>
+        <span id="tab-button-heatmap" class="res-tab" onclick="resTab(this, 'heatmap');">Plot Heatmap</span>
+        <span id="tab-button-speeding" class="res-tab" onclick="resTab(this, 'speeding');">Plot Speeding</span>
+      </div>
+      <div id="results-manual" class="results-tab-content"></div>
+      <div id="results-heatmap" class="results-tab-content">
+        <p><b>Experimental feature</b>: Plots each section of the road with a colour scale that shows the average speed. Sub-sections don't work yet, so the average is over the whole length of the road.</p>
+        <table class="heatmap-range">
+          <script>
+            Object.keys(heatmapColours)
+              .sort((e1, e2) => (e1.order - e2.order))
+              .forEach(key => {
+                document.writeln(
+                  `<tr><td>${heatmapColours[key].range}</td><td style="background: ${heatmapColours[key].color}; width: 5em;"></td></tr>`
+                );
+              });
+          </script> 
+        </table>
+      </div>
+      <div id="results-speeding" class="results-tab-content">
+        <p><b>Experimental feature - Not working yet</b>: This plots each section of the road where the reported average speed (SU - Speed Uncut) is higher than the average speed excluding speeding (SP).</p>
+        <div id="results-speeding-content" class="results-tab-content"></div>        
+      </div>
+      <div id="qd-div" class="inputpar">
+        <span class="inputrow">Queuing direction (QD):</span>
+        <input type="radio" id="qd-plus" value="+" name="qd" checked onchange="changeQD(this);"/>
+        <label for="qd-plus">Plus (+)</label>
+        <span class="hspace"></span>
+        <input type="radio" id="qd-minus" value="-" name="qd" onchange="changeQD(this);"/>
+        <label for="qd-minus">Minus (-)</label>
+        <p>At this stage, I haven't figured out how plot both directions on the same road, so there are two heatmaps avaible, one per queueing direction. The queuing direction for each road in HERE maps can be <b>+</b> or <b>-</b></p>
+      </div>
     </div>
     <div id="map">
     </div>

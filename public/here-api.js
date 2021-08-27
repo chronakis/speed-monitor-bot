@@ -16,8 +16,8 @@ function setMapViewBounds(map, bbox){
 /**
  * Takes a shape string and draws a poly line on the map
  */
-function addShapeToMap(map, shapeString) {
-  return addPolylineToMap(map, shapes2cords(shapeString));
+function addShapeToMap(map, shapeString, color, width) {
+  return addPolylineToMap(map, shapes2cords(shapeString), color);
 }
 
 
@@ -30,12 +30,18 @@ function addShapeToMap(map, shapeString) {
  *     ...
  * ]
  */ 
-function addPolylineToMap(map, coordsArray) {
+function addPolylineToMap(map, coordsArray, color, width) {
   var lineString = new H.geo.LineString();
   coordsArray.forEach( c => lineString.pushPoint(c));
 
+  if (!color)    color = '#D33';
+  if (!width)    width = 5;
+
   let poly = new H.map.Polyline(
-    lineString, { style: { lineWidth: 6, strokeColor: '#D33', lineHeadCap: 'arrow-head', lineTailCap: 'arrow-tail' }}
+    lineString, { style: {
+      lineWidth: width, strokeColor: color,
+      lineHeadCap: 'arrow-head', lineTailCap: 'arrow-tail'  // The arrows are very small but visible
+    }}
   );
   map.addObject(poly);
   return poly;
