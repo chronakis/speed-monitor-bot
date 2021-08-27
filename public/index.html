@@ -18,6 +18,16 @@
   <script src="here-api.js" crossorigin="anonymous"></script>
   <script src="cookie.js" crossorigin="anonymous"></script>
   <script src="explore.js" crossorigin="anonymous"></script>
+
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-20549SQ8SR"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-20549SQ8SR');
+  </script>
+
 <style>
 body {
   font-family: sans-serif;
@@ -56,6 +66,9 @@ body {
   min-height: 20px;
   background: #eef;
   border: thin solid #cce;
+}
+#flow-data-inner {
+
 }
 #flow-data table {
   border-collapse: collapse; 
@@ -114,9 +127,27 @@ label.inputrow, span.inputrow {
   text-align: right;
 }
 
+#header {
+  font-size: 1.2em;
+  margin-bottom: .3em;
+  padding: .5em;
+  background: #7CE;
+  border: thin solid #cce;
+}
+#github {
+  float:  right;
+}
+#header a:link, #header a:visited {
+  text-decoration: none;
+  color: blue;
+}
 </style>
 </head>
 <body>
+  <div id="header">
+    Speed Monitoring Bot - Traffic/Speed data explorer tool
+    <div id="github"><a href="https://github.com/chronakis/speed-monitor-bot">Project home at github</a></div>
+  </div>
   <div class="infopar">
     <div class="inputpar">
     <div class="inputpar">
@@ -164,6 +195,10 @@ label.inputrow, span.inputrow {
       </div>
     </div>
     <div id="flow-data">
+      <div id="flow-data-header" class="inputpar">
+        Speed data from the section will be shown below. Details on the metrics can be found at <a href="https://developer.here.com/documentation/traffic/dev_guide/topics/common-acronyms.html" target="_blank">HERE Maps documentation</a>
+      </div>
+      <div id="flow-data-inner"></div>
     </div>
   </div>
 </body>
