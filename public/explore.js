@@ -129,7 +129,7 @@ function previewSpeedData(key) {
     uConv = conv.km2miles;
   }
 
-  $('#flow-data').html('');
+  $('#flow-data-inner').html('');
   let flowItem = flowItemIndex[key];
   console.log('flowItem', flowItem);
 
@@ -138,7 +138,7 @@ function previewSpeedData(key) {
               + '<th>Section<br/>length (' + uLen + ')</th>'
               + '<th>Subsection<br/>length (' + uLen + ')</th>'
               + '<th>Confidence (CN)</th>'
-              + '<th>Speed (' + uSpd + ')</th></tr>';
+              + '<th>Speed - SU (' + uSpd + ')</th></tr>';
   let text = flowItem.samples.reduce((acc, val) => 
     acc + `<tr><td>${flowItem.rw.DE}</td>`
         + `<td>${flowItem.tmc.DE}</td>`
@@ -148,7 +148,7 @@ function previewSpeedData(key) {
         + `<td class="number">${val.SU}</td></tr>`,
     '');
 
-  $('#flow-data').html(`<table id="speedTable">${headers}${text}</table`);
+  $('#flow-data-inner').html(`<table id="speedTable">${headers}${text}</table`);
 }
 
 /**
