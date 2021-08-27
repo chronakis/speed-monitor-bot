@@ -116,8 +116,8 @@ function drawManual() {
 const heatmapColours = {
   20:  {color: '#55eefc', range: '0-20', order: 1},
   30:  {color: '#55b7fc', range: '21-30', order: 2},
-  40:  {color: '#f4ed66', range: '31-40', order: 3},
-  50:  {color: '#3d5ce5', range: '41-50', order: 4},
+  40:  {color: '#3d5ce5', range: '31-40', order: 3},
+  50:  {color: '#0010fc', range: '41-50', order: 4},
   60:  {color: '#8758dd', range: '51-60', order: 5},
   70:  {color: '#d147e0', range: '61-70', order: 6},
   200: {color: '#f42c61', range: '71-200', order: 7},
