@@ -23,7 +23,8 @@ function run() {
       params: {
         apiKey: authConfig.here.apiKey,
         bbox: botConfig.bbox,
-        responseattributes: 'sh'      
+        responseattributes: 'sh',
+        units: botConfig.units      
       }
     })
     .then(res => {
@@ -50,7 +51,12 @@ function doSpeederBot(data) {
     let flowItems = dataToFlowItems(data);
     let flowItemsLocFiltered = filterFlowItemsByLocationArray(flowItems, botConfig.sections, botConfig.concat);
     let lines = generateLog(flowItemsLocFiltered, botConfig);
+    let newFile = !fs.existsSync(botConfig.logFile);
     let log = fs.createWriteStream(botConfig.logFile, { flags: 'a' });
+    if (newFile) {
+      console.log('timestamp,road,section,humanName,li,pc,sectionLength,subsectionLength,confidence,speed,journeyTime');
+      log.write('timestamp,road,section,humanName,li,pc,sectionLength,subsectionLength,confidence,speed,journeyTime\n');
+    }
     lines.forEach(l => {
       console.log(l);
       log.write(l+'\n');
@@ -130,6 +136,7 @@ function generateLog (flowItems, limits) {
     let missingData   = false;
     let confidence;
     let speed;
+    let time;
     let subsectionLength = '';
 
     // Concatenate the subsections to the original section
@@ -137,6 +144,7 @@ function generateLog (flowItems, limits) {
       if (flowItem.samples.length == 1) {
           speed = flowItem.samples[0].SU;
           confidence = flowItem.samples[0].CN;
+          time = speed && speed > 0 ? 3600*sectionLength/speed : 'undefined';
       }
       else {
         let S = 0.0;
@@ -144,19 +152,21 @@ function generateLog (flowItems, limits) {
         confidence = flowItem.samples[0].CN;
         flowItem.samples.forEach(smp => {
           // defend for missing data (once in a while)
-          if (smp.LE && smp.SU) {
+          if (smp.LE && smp.SU && smp.SU > 0) {
             S  += smp.LE;
             T  += smp.LE / smp.SU;
           }
         });
-        if (S > 0 && T > 0)
+        if (S > 0 && T > 0) {
           speed = S/T;
+          time = T * 3600;
+        }
         else
           missingData = true;
       }
 
       if (!missingData)
-        lines.push(`${timestamp},${road},${section},${humanName},${li},${pc},${sectionLength},${subsectionLength},${confidence},${speed}`);
+        lines.push(`${timestamp},${road},${section},${humanName},${li},${pc},${sectionLength},${subsectionLength},${confidence},${speed},${time}`);
     }
     // Use one line per subsections. Warning: subsections vary by the minute
     else {
@@ -164,8 +174,8 @@ function generateLog (flowItems, limits) {
         confidence        = smp.CN;
         subsectionLength  = smp.LE ? smp.LE : '';
         speed             = smp.SU;
-
-        lines.push(`${timestamp},${road},${section},${humanName},${li},${pc},${sectionLength},${subsectionLength},${confidence},${speed}`);
+        time              = speed && speed > 0 ? 3600 * subsectionLength/speed : 'undefined';
+        lines.push(`${timestamp},${road},${section},${humanName},${li},${pc},${sectionLength},${subsectionLength},${confidence},${speed},${time}`);
       });
     }
   });
