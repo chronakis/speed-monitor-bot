@@ -18,7 +18,6 @@ const config = {
     { li: 'C07-00367', pc: 3998}
   ],
 
-
   // Enable CSV data logging and the file to log
   log: true,
   logFile: 'log.csv',
