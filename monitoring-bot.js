@@ -1,33 +1,44 @@
 const axios = require('axios');
+const fs = require('fs');
 const OAuth = require('oauth');
 const authConfig = require('./auth-config.js');
 const rawConfig = require('./bot-config.js');
 const botConfig = rawConfig.config;
 
 
-axios.get('https://traffic.ls.hereapi.com/traffic/6.1/flow.json', {
-    params: {
-      apiKey: authConfig.here.apiKey,
-      bbox: botConfig.bbox,
-      responseattributes: 'sh'      
-    }
-  })
-  .then(res => {
-    console.log('Traffic data retrieved');
-    doSpeederBot(res.data);
-  })
-  .catch(err => {
-    console.log('Failed to retrieve traffic data', err);
-  });
+if (botConfig.logInterval) {
+  let milliseconds = botConfig.logInterval * 1000;
+  run();
+  setInterval(run, milliseconds);
+}
+else {
+  run();  
+}
 
-/**
- * Some convertion constants
- */
-const convertions = {
-  km2miles: 0.6213712,
-  miles2km: 1.609344
-};
+function run() {
+  axios.get('https://traffic.ls.hereapi.com/traffic/6.1/flow.json', {
+      params: {
+        apiKey: authConfig.here.apiKey,
+        bbox: botConfig.bbox,
+        responseattributes: 'sh'      
+      }
+    })
+    .then(res => {
+      console.log('Traffic data retrieved at ', new Date());
+      doSpeederBot(res.data);
+    })
+    .catch(err => {
+      console.log('Failed to retrieve traffic data', err);
+    });
 
+  /**
+   * Some convertion constants
+   */
+  const convertions = {
+    km2miles: 0.6213712,
+    miles2km: 1.609344
+  };
+}
 
 /**
  * A function that follows up the traffic data.
@@ -36,7 +47,12 @@ function doSpeederBot(data) {
     let flowItems = dataToFlowItems(data);
     let flowItemsLocFiltered = filterFlowItemsByLocationArray(flowItems, botConfig.sections);
     let lines = generateLog(flowItemsLocFiltered, botConfig);
-    lines.forEach(l => console.log(l));
+    let log = fs.createWriteStream(botConfig.logFile, { flags: 'a' });
+    lines.forEach(l => {
+      console.log(l);
+      log.write(l+'\n');
+    });
+    log.end();
 }
 
 
