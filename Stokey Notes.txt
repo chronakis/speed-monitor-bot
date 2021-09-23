@@ -1,0 +1,12 @@
+Manor road and Lordship park:
+  Eastbound: C07-13158, 31199
+  Westbound: C07+13158, 31198
+
+Green Lanes:
+  Southbound: C07-00563, 6485
+  Northbound: C07+00563, 6486
+
+A10:
+  Northbound: C07+00367, 3999
+  Southbound: C07-00367, 3998 (2 sections)
+
