@@ -19,6 +19,12 @@ const config = {
   ],
 
 
+  // Enable CSV data logging and the file to log
+  log: true,
+  logFile: 'log.csv',
+  // Logging interval in seconds
+  logInterval: 900,
+
   // Speed limit in km/h or mph. Use one of the two. If both used, Km/h is used.
   limitKm: null,
   limitMi: 10,
@@ -27,10 +33,6 @@ const config = {
   // valiues larger than 0.7 and less or equal to 1.0
   // indicate live data
   CN_predicate: (cn) => cn > 0.7 && cn <=1,
-
-  // Enable CSV data logging and the file to log
-  log: true,
-  logFile: 'log.csv',
 
   // Enable twitting of above limit samples found
   tweet: false,
