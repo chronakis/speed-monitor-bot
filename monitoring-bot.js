@@ -49,7 +49,7 @@ function doSpeederBot(data) {
     let lines = generateLog(flowItemsLocFiltered, botConfig);
     let log = fs.createWriteStream(botConfig.logFile, { flags: 'a' });
     lines.forEach(l => {
-      console.log(l);
+      //console.log(l);
       log.write(l+'\n');
     });
     log.end();
