@@ -1,12 +1,23 @@
 const config = {
   // Set your bounding box here
-  bbox: '51.5619,-0.1006;51.5454,-0.0935',// A1201 - Highbury grove/Blackstock Road
+  bbox: '51.5683485976279,-0.098724820824368;51.553859777760984,-0.06477923298446531',
 
   // Road identity filter. Use the index.html to get it.
   LI_filter: 'C07-13780',
 
   // Section identity filter. Use the index.html to get it.
   PC_filter: 33846,
+
+  // For the multifilering version
+  sections: [
+    { li: 'C07-13158', pc: 31199},
+    { li: 'C07+13158', pc: 31198},
+    { li: 'C07-00563', pc: 6485},
+    { li: 'C07+00563', pc: 6486},
+    { li: 'C07+00367', pc: 3999},
+    { li: 'C07-00367', pc: 3998}
+  ],
+
 
   // Speed limit in km/h or mph. Use one of the two. If both used, Km/h is used.
   limitKm: null,
