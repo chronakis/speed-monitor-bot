@@ -7,6 +7,7 @@ const config = {
   // Set your bounding box here
   bbox: '51.5683485976279,-0.098724820824368;51.553859777760984,-0.06477923298446531',
 
+  units: 'imperial',
 
   /*
    * === Monitoring bot specific configuration =====
