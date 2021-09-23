@@ -48,11 +48,11 @@ function run() {
  */
 function doSpeederBot(data) {
     let flowItems = dataToFlowItems(data);
-    let flowItemsLocFiltered = filterFlowItemsByLocationArray(flowItems, botConfig.sections);
+    let flowItemsLocFiltered = filterFlowItemsByLocationArray(flowItems, botConfig.sections, botConfig.concat);
     let lines = generateLog(flowItemsLocFiltered, botConfig);
     let log = fs.createWriteStream(botConfig.logFile, { flags: 'a' });
     lines.forEach(l => {
-      //console.log(l);
+      console.log(l);
       log.write(l+'\n');
     });
     log.end();
@@ -87,11 +87,24 @@ function filterFlowItemsByLocation(flowItems, filter) {
 }
 
 /**
- * Will return multiple flow items, one per filter match
+ * Will return multiple flow items, one per filter match and also enrich them with extra info
  */
-function filterFlowItemsByLocationArray(flowItems, sections) {
-  // FIXME: Don't code after 2am. Use find instead of filter
-  return flowItems.filter(fi => sections.filter(sec => sec.li == fi.rw.LI && sec.pc == fi.tmc.PC).length > 0);
+function filterFlowItemsByLocationArray(flowItems, sections, concat) {
+  let filtered = flowItems.filter(fi => {
+    let match = sections.find(sec => sec.li == fi.rw.LI && sec.pc == fi.tmc.PC);
+    if (match) {
+      fi['humanName'] = match.name ? match.name : fi.rw.DE + '-' + fi.tmc.DE;
+      if (match.hasOwnProperty('concat'))
+        fi['concat']  = match.concat ? true : false;
+      else
+        fi['concat']  = concat;
+      return true;
+    }
+    return false;
+    });
+
+  // console.log(filtered);
+  return filtered;
 }
 
 
@@ -111,14 +124,50 @@ function generateLog (flowItems, limits) {
     let li            = flowItem.rw.LI;
     let pc            = flowItem.tmc.PC;
     let section       = flowItem.tmc.DE;
+    let humanName     = flowItem.humanName;
     let sectionLength = flowItem.tmc.LE;
-    flowItem.samples.forEach(smp => {
-      let confidence        = smp.CN;
-      let subsectionLength  = smp.LE ? smp.LE : '';
-      let speed             = smp.SU;
 
-      lines.push(`${timestamp},${road},${li},${pc},${section},${sectionLength},${subsectionLength},${confidence},${speed}`);
-    });
+    let missingData   = false;
+    let confidence;
+    let speed;
+    let subsectionLength = '';
+
+    // Concatenate the subsections to the original section
+    if (flowItem.concat) {
+      if (flowItem.samples.length == 1) {
+          speed = flowItem.samples[0].SU;
+          confidence = flowItem.samples[0].CN;
+      }
+      else {
+        let S = 0.0;
+        let T = 0.0;
+        confidence = flowItem.samples[0].CN;
+        flowItem.samples.forEach(smp => {
+          // defend for missing data (once in a while)
+          if (smp.LE && smp.SU) {
+            S  += smp.LE;
+            T  += smp.LE / smp.SU;
+          }
+        });
+        if (S > 0 && T > 0)
+          speed = S/T;
+        else
+          missingData = true;
+      }
+
+      if (!missingData)
+        lines.push(`${timestamp},${road},${section},${humanName},${li},${pc},${sectionLength},${subsectionLength},${confidence},${speed}`);
+    }
+    // Use one line per subsections. Warning: subsections vary by the minute
+    else {
+      flowItem.samples.forEach(smp => {
+        confidence        = smp.CN;
+        subsectionLength  = smp.LE ? smp.LE : '';
+        speed             = smp.SU;
+
+        lines.push(`${timestamp},${road},${section},${humanName},${li},${pc},${sectionLength},${subsectionLength},${confidence},${speed}`);
+      });
+    }
   });
   return lines;
 }
