@@ -18,9 +18,15 @@ const config = {
     { li: 'C07+13158', pc: 31198, name: 'Manor road and Lordship park - Westbound'},
     { li: 'C07-00563', pc: 6485 , name: 'Green Lanes - Southbound'},
     { li: 'C07+00563', pc: 6486 , name: 'Green Lanes - Northbound'},
-    { li: 'C07+00367', pc: 3999 , name: 'A10 - Northbound'},
-    { li: 'C07-00367', pc: 3998 , name: 'A10 - Southbound'}
+    { li: 'C07+00367', pc: 3999 , concat: true, name: 'A10 - Northbound'},  // Overrides the concat
+    { li: 'C07-00367', pc: 3998 , concat: true, name: 'A10 - Southbound'}
   ],
+
+  // Whether to concatenate subesections to a single section or leave them individually.
+  // Subsections change in every run. So they don't create comparable data
+  // It is suggested to concatenate them in the single section which is the same all the time.
+  // You can override this individually per section
+  concat: true,
 
   // Enable CSV data logging. This is only true for the spee
   log: true,
