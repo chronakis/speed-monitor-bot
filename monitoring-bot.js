@@ -87,11 +87,14 @@ function filterFlowItemsByLocation(flowItems, filter) {
  * Will return multiple flow items, one per filter match
  */
 function filterFlowItemsByLocationArray(flowItems, sections) {
-  //flowItems.forEach(fi => sections.forEach(sec => console.log(`${sec.li} == ${fi.rw.LI} && ${sec.pc} == ${fi.tmc.PC}`)));
+  // FIXME: Don't code after 2am. Use find instead of filter
   return flowItems.filter(fi => sections.filter(sec => sec.li == fi.rw.LI && sec.pc == fi.tmc.PC).length > 0);
 }
 
 
+ // TODO:
+ // 1. Accumulate the subsections 
+ // 2. Calculate journey time
  // Timestamp, LI/PC, Road, Section, Section Length, Subsection Length, confidence, speed
 function generateLog (flowItems, limits) {
   let dateObj = new Date();

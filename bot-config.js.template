@@ -1,28 +1,55 @@
+/*
+ * Configuration for the bot.
+ * 
+ * Go to https://speedbot.bikesnbytes.net/ to get bbox, LI and PC
+ */ 
 const config = {
   // Set your bounding box here
   bbox: '51.5683485976279,-0.098724820824368;51.553859777760984,-0.06477923298446531',
 
-  // Road identity filter. Use the index.html to get it.
-  LI_filter: 'C07-13780',
 
-  // Section identity filter. Use the index.html to get it.
-  PC_filter: 33846,
-
-  // For the multifilering version
+  /*
+   * === Monitoring bot specific configuration =====
+   */
+  // Sections to monitor. 'name' is optional, human readable name for the section you want.
+  // DON'T USE COMMAS!
   sections: [
-    { li: 'C07-13158', pc: 31199},
-    { li: 'C07+13158', pc: 31198},
-    { li: 'C07-00563', pc: 6485},
-    { li: 'C07+00563', pc: 6486},
-    { li: 'C07+00367', pc: 3999},
-    { li: 'C07-00367', pc: 3998}
+    { li: 'C07-13158', pc: 31199, name: 'Manor road and Lordship park - Eastbound'},
+    { li: 'C07+13158', pc: 31198, name: 'Manor road and Lordship park - Westbound'},
+    { li: 'C07-00563', pc: 6485 , name: 'Green Lanes - Southbound'},
+    { li: 'C07+00563', pc: 6486 , name: 'Green Lanes - Northbound'},
+    { li: 'C07+00367', pc: 3999 , name: 'A10 - Northbound'},
+    { li: 'C07-00367', pc: 3998 , name: 'A10 - Southbound'}
   ],
 
-  // Enable CSV data logging and the file to log
+  // Enable CSV data logging. This is only true for the spee
   log: true,
-  logFile: 'log.csv',
-  // Logging interval in seconds
+  logFile: 'stokey-log.csv',
+  // Logging interval in seconds.
+  // If null it will run only once
   logInterval: 900,
+
+  /* === end of monitoring bot config ============== */
+
+
+  /*
+   * === speeder-bot specific configuration =====
+   */
+
+  // Enable twitting.
+  // false, will only print the status message previewing. 
+  // true, will also tweet it.
+  tweet: false,
+
+  // Interval to run the tweeter bot in seconds
+  // If null, it will run only once
+  tweetInterval: 1800,
+
+  // Road identity filter. 
+  LI_filter: 'C07-13780',
+
+  // Section identity filter
+  PC_filter: 33846,
 
   // Speed limit in km/h or mph. Use one of the two. If both used, Km/h is used.
   limitKm: null,
@@ -32,10 +59,6 @@ const config = {
   // valiues larger than 0.7 and less or equal to 1.0
   // indicate live data
   CN_predicate: (cn) => cn > 0.7 && cn <=1,
-
-  // Enable twitting of above limit samples found
-  tweet: false,
-
   /*
    * report.status          True (successful) or False (failed)
    * report.error           If status if false, this is the error messsage
@@ -61,6 +84,8 @@ const config = {
                     + ' (just testing, please ignore).'
 
 };
+
+/* === end of speeder bot config ====================== */
 
 /* Hack to work both in mode and in browser */
 if (typeof module !== 'undefined' && module.exports) {
