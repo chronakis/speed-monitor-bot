@@ -1,8 +1,12 @@
 const axios = require('axios');
 const OAuth = require('oauth');
-const authConfig = require('./auth-config.js');
-const rawConfig = require('./bot-config.js');
+const botLib = require('./bot-library.js');
+const args = process.argv.slice(2);
+const authConfig = require(botLib.getConfigFile('auth-config.js'));
+const rawConfig = require(botLib.getConfigFile('bot-config.js'));
 const botConfig = rawConfig.config;
+
+console.log(`Using ${botLib.getConfigFile('auth-config.js')} and ${botLib.getConfigFile('bot-config.js')}`);
 
 /**
  * Some convertion constants

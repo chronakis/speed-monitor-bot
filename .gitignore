@@ -9,3 +9,5 @@ bot-config.js
 *.bak
 *.tmp
 *.csv
+/stokey/
+
