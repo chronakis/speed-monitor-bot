@@ -43,12 +43,15 @@ A simple http-server. I am suggesting the node module http-server to keep things
    2. Set `tweetInterval` to the number of seconds between runs. `null` to use in run once mode.
      2. Set the `LI_filter` and `PC_filter`
      3. Set your speed limits ( `limitKm` or `limitMi`)
-   
+
+Note: The bot supports multiple configurations. See run section below
+
+
 ### III. Run the bot(s) ###
 
 For the monitoring bot:
 ```
-node mointoring-bot.js
+node monitoring-bot.js
 ```
 For the speeder bot:
 ```
@@ -59,6 +62,29 @@ If you set the interval, the bot will run forever until killed.
 On a un\*x You can use somethign like nohup, daemon, daemonize, at etc. Ir you can just run it with screen. Or you can put it in init if you are crazy enough :)
 
 On windows you can use the task scheduler to run it in the background (remember if you set an interval to run it once). Lots of options on how long to run etc.
+
+
+### IV. Multiple configurations ###
+
+Pass a configurtion directory from the command line
+
+```
+node monitoring-bot.js config-directory
+```
+
+- config-directory
+   - auth-config.js
+   - bot-config.js
+
+If you want to use a single auth-config.js and multiple bot configurations, keep the auth-config.js in the same directory as the bot
+and only add bot-config in the cirectories, e.g.:
+
+- monitoring-bot.js
+- auth-config.js
+- config-dir-1
+   - bot-config.js
+- config-dir-2
+   - bot-config.js
 
 ## The future ##
 
