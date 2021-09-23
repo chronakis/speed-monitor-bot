@@ -24,10 +24,10 @@ const config = {
 
   // Enable CSV data logging. This is only true for the spee
   log: true,
-  logFile: 'stokey-log.csv',
+  logFile: 'test-log.csv',
   // Logging interval in seconds.
   // If null it will run only once
-  logInterval: 900,
+  logInterval: null,
 
   /* === end of monitoring bot config ============== */
 
@@ -43,7 +43,7 @@ const config = {
 
   // Interval to run the tweeter bot in seconds
   // If null, it will run only once
-  tweetInterval: 1800,
+  tweetInterval: null,
 
   // Road identity filter. 
   LI_filter: 'C07-13780',
