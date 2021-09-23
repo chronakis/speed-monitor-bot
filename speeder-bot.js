@@ -4,22 +4,6 @@ const authConfig = require('./auth-config.js');
 const rawConfig = require('./bot-config.js');
 const botConfig = rawConfig.config;
 
-
-axios.get('https://traffic.ls.hereapi.com/traffic/6.1/flow.json', {
-    params: {
-      apiKey: authConfig.here.apiKey,
-      bbox: botConfig.bbox,
-      responseattributes: 'sh'      
-    }
-  })
-  .then(res => {
-    console.log('Traffic data retrieved');
-    doSpeederBot(res.data);
-  })
-  .catch(err => {
-    console.log('Failed to retrieve traffic data', err);
-  });
-
 /**
  * Some convertion constants
  */
@@ -27,6 +11,34 @@ const convertions = {
   km2miles: 0.6213712,
   miles2km: 1.609344
 };
+
+
+
+if (botConfig.tweetInterval) {
+  let milliseconds = botConfig.logInterval * 1000;
+  run();
+  setInterval(run, milliseconds);
+}
+else {
+  run();  
+}
+
+function run() {
+  axios.get('https://traffic.ls.hereapi.com/traffic/6.1/flow.json', {
+      params: {
+        apiKey: authConfig.here.apiKey,
+        bbox: botConfig.bbox,
+        responseattributes: 'sh'      
+      }
+    })
+    .then(res => {
+      console.log('Traffic data retrieved');
+      doSpeederBot(res.data);
+    })
+    .catch(err => {
+      console.log('Failed to retrieve traffic data', err);
+    });
+}
 
 
 /**
