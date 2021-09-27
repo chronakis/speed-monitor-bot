@@ -7,10 +7,11 @@ const config = {
   // Set your bounding box here
   bbox: '51.5683485976279,-0.098724820824368;51.553859777760984,-0.06477923298446531',
 
-  units: 'imperial',
+  // metric or imperial
+  units: 'metric',
 
   /*
-   * === Monitoring bot specific configuration =====
+   * === HERE monitoring bot specific configuration =====
    */
   // Sections to monitor. 'name' is optional, human readable name for the section you want.
   // DON'T USE COMMAS!
@@ -29,14 +30,34 @@ const config = {
   // You can override this individually per section
   concat: true,
 
+  /* === end of HERE monitoring bot config ============== */
+
+  /*
+   * === GOOGLE monitoring bot specific configuration =====
+   */
+
+  journeys: [
+    { origins: '51.563950,-0.092276',   destinations: '51.565414,-0.073334', name: 'Manor road and Lordship park - Eastbound'},
+    { origins: '51.556468,-0.079029',   destinations: '51.548329,-0.067419', name: 'Nevil road to Travis Perkins'},
+    { origins: '51.548329,-0.067419',   destinations: '51.556468,-0.079029', name: 'Travis Perkins to Nevil road'}
+
+  ],
+
+  // One of:
+  // google: All the google information
+  // here:   Keep all the here columns but populate only the ones present
+  // brief:  timestamp, name, distance, duration
+
+  logFormat: 'google',
+
+  /* === end of GOOGLE monitoring bot config ============== */
+
   // Enable CSV data logging. This is only true for the spee
   log: true,
   logFile: 'test-log.csv',
   // Logging interval in seconds.
   // If null it will run only once
   logInterval: null,
-
-  /* === end of monitoring bot config ============== */
 
 
   /*

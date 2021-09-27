@@ -12,7 +12,11 @@ const here = {
     apiKey: 'HERE_API_KEY'    
 }
 
+const google = {
+    apiKey: 'AIzaSyBYHgoGZsp_7BvSleGdWl3L5U40ciyWa8s'
+}
+
 /* Hack to work both in mode and in browser */
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { twitter, here };
+  module.exports = { twitter, here, google };
 }
