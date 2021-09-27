@@ -10,4 +10,5 @@ bot-config.js
 *.tmp
 *.csv
 /stokey/
+/stokey-google/
 
