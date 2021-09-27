@@ -54,7 +54,7 @@ const logHeaders = {
 const logLines = {
   brief  : '${timestamp},${journeyName},${distance},${duration}',
   here   : '${timestamp},${road},${section},${journeyName},${li},${pc},${distance},${subsectionLength},${confidence},${speed},${duration}',
-  google : '${timestamp},${journeyName},${origin},${destination},${distance},${duration},${duration_in_traffic}',
+  google : '${timestamp},${journeyName},"${origin}","${destination}",${distance},${duration},${duration_in_traffic}',
 };
 
 /**
@@ -62,16 +62,16 @@ const logLines = {
  */
 function logData(data, format) {
     let newFile = !fs.existsSync(botConfig.logFile);
-    //let log = fs.createWriteStream(botConfig.logFile, { flags: 'a' });
+    let log = fs.createWriteStream(botConfig.logFile, { flags: 'a' });
 
     if (newFile) {
       console.log(logHeaders[format]);
-      //log.write(logHeaders[format] + '\n');
+      log.write(logHeaders[format] + '\n');
     }
     let lines = generateLog(data, format);
     lines.forEach(l => {
       console.log(l);
-      //log.write(l+'\n');
+      log.write(l+'\n');
     });
     //log.end();
 }
