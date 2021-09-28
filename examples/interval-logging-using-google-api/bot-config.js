@@ -11,7 +11,7 @@ const config = {
 
   journeys: [
     { origins: '51.563950,-0.092276',   destinations: '51.565414,-0.073334', name: 'Manor road and Lordship park - Eastbound'},
-    { origins: '51.548329,-0.067419',   destinations: '51.556468,-0.079029', name: 'Travis Perkins to Nevil road'}
+    { origins: '51.563952,-0.092361',   destinations: '51.540953,-0.057492', name: 'Brownswood to London Fields'}
   ],
 };
 
