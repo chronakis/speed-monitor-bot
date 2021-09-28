@@ -4,11 +4,10 @@
 nohup.out
 config.js
 auth-config.js
-bot-config.js
+/bot-config.js
 *~
 *.bak
 *.tmp
 *.csv
-/stokey/
-/stokey-google/
-
+/stokey
+/stokey-google
