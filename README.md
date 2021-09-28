@@ -1,12 +1,13 @@
 # speed-monitor-bot #
 
-A set of tools to help process HERE Maps data written in node js. The twitter bot was inspired by the original [speederbot](https://github.com/BerkshireCar/SpeederBot). It does not depend to any third party service and you can run it from your computer or your Rasberry PI or whatever device you can put node in.
+A set of tools to help process HERE Maps and google distance matrix data written in node js. The twitter bot was inspired by the original [speederbot](https://github.com/BerkshireCar/SpeederBot). It does not depend to any third party service and you can run it from your computer or your Rasberry PI or whatever device you can put node in.
 
-There are three tools in this project:
+There are four tools in this project:
 
-1. The `monitoring-bot`: This is used to collect traffic flow data for a a set of road sections in a CSV file.
-2. The `speeder-bot`: A javascript bot that reports on twitter when the flow data indicate average speeds above a given limit.
-3. The `Flow data explorer`: A web tool for identifying the road sections and previewing live data. It is live at [speedbot.bikesnbytes.net](https://speedbot.bikesnbytes.net/), no need to build it. Use this to get your configuration parameters.
+1. The `monitoring-bot`: This is used to collect traffic flow data for a set of road sections in a CSV file.
+2. The `gmonitoring-bot`: A google version that uses the distance matrix to collect journey times in a CSV file.
+3. The `speeder-bot`: A javascript bot that reports on twitter when the flow data indicate average speeds above a given limit.
+4. The `Flow data explorer`: A web tool for identifying the road sections in HERE maps and previewing live data. It is live at [speedbot.bikesnbytes.net](https://speedbot.bikesnbytes.net/), no need to build it. Use this to get your configuration parameters.
 
 ## Quick start ###
 
@@ -17,6 +18,7 @@ You will need.
 * A HERE Maps developer account an the API KEY
   * Go [here](https://developer.here.com/), get started for free and create a "Freemium" account and API key. This is instant.
 * `node js` installed. You can do this either globally (with an installer) or inside the folder folder (with a zip). The installer will take care of everything. If you do the manual way, just don't for get to make sure the PATH is updated for node and npm. Node Js can be found [here](https://nodejs.org/en/download/).
+* If you want to use the google monitoring bot, you will need a google developer account with a distance matrix API KEY. Whilst this API is not free, you can get a lot of credits to run some free tests. Starting point: [developers.google.com/maps](https://developers.google.com/maps)
 
 **If you want to tweet (optional)**
 
@@ -44,8 +46,8 @@ A simple http-server. I am suggesting the node module http-server to keep things
      2. Set the `LI_filter` and `PC_filter`
      3. Set your speed limits ( `limitKm` or `limitMi`)
 
-Note: The bot supports multiple configurations. See run section below
-
+* Note: The bot supports multiple configurations. See run section below
+* Note2: I don't have documentation yet for the google distance matrix but the config files should give enough information.
 
 ### III. Run the bot(s) ###
 
@@ -94,6 +96,7 @@ The next things I may implement are:
 
 1. ~~Get the bounding box from the current map view. The HERE Maps page is herendous~~. DONe
 2. ~~A speed-audit-bot that will monitor some given roads and create a database of recorded average speeds for analysis.~~. DON
+3. ~~A version of the traffic monitoring bot that uses the google distance matrix~~
 
 ## Thanks & Credits ##
 
