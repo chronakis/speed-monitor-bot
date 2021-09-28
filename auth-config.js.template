@@ -13,7 +13,7 @@ const here = {
 }
 
 const google = {
-    apiKey: 'AIzaSyBYHgoGZsp_7BvSleGdWl3L5U40ciyWa8s'
+    apiKey: 'YOUR-API-KEY'
 }
 
 /* Hack to work both in mode and in browser */
