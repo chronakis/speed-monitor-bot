@@ -32,6 +32,12 @@ function run() {
         }
     })))
   .then(responses => {
+      let error = responses.find(res => res.data.status != 'OK');
+      if (error) {
+        throw (`There was an error with a ressponse: ${error.data.error_message}`);
+        process.exit(1);
+      }
+
       console.log('Journey data retrieved at ', new Date());
       let journeyData = responses.map(res=> {
         res.data['journeyName'] = res.config.custom.name;
