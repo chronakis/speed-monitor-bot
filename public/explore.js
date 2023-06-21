@@ -280,7 +280,7 @@ function updateMap() {
  */
 function mapToBBox () {
   let b = map.getViewModel().getLookAtData().bounds.getBoundingBox();
-  let bbox = `${b.la},${b.ca};${b.ma},${b.ia}`;
+  let bbox = `${b.c},${b.a};${b.f},${b.b}`;
   let units = $('input:radio[name="units"]:checked').val();
   let apiKey = $('#apiKey').val();
 
