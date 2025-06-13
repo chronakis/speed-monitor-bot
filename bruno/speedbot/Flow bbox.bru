@@ -1,0 +1,23 @@
+meta {
+  name: Flow bbox
+  type: http
+  seq: 2
+}
+
+get {
+  url: https://data.traffic.hereapi.com/v7/flow?apiKey=2vNl00nRnSmgPP3iUT69Z2R_2R2IuBZoVHUtdaunH88&in=bbox:-0.0445,51.37874,0.81256,51.5789&responseattributes=sh&units=metric&locationReferencing=olr,tmc,shape
+  body: none
+  auth: inherit
+}
+
+params:query {
+  apiKey: 2vNl00nRnSmgPP3iUT69Z2R_2R2IuBZoVHUtdaunH88
+  in: bbox:-0.0445,51.37874,0.81256,51.5789
+  responseattributes: sh
+  units: metric
+  locationReferencing: olr,tmc,shape
+}
+
+docs {
+  bbox:{west longitude},{south latitude},{east longitude},{north latitude}
+}

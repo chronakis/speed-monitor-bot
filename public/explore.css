@@ -18,14 +18,14 @@ p {
   right: 0px;
   top: 0px;
   width: 59%;
-  height: 460px;
+  height: 475px;
   border: 1px solid #cdced0;
   background-color: #e4e6e9;
 }
 
 #results-cont {
   width:  40%;
-  height: 450px;
+  height: 480px;
   border: thin solid grey;
   background: #ddd;
 }
@@ -33,9 +33,7 @@ p {
 #results-manual {
   padding: 0.5em;
   line-height: 1.6em;
-  white-space: pre-wrap;
-  overflow: scroll;
-  height: 100%;
+  overflow: visible;
 }
 
 #results-speeding-content {
@@ -47,6 +45,51 @@ p {
 
 .results-tab-content {
 	height: 60%;
+}
+
+/* Ensure DataTable has proper space */
+#results-manual {
+  margin-bottom: 0.5em;
+}
+
+#roadsTable_wrapper {
+  height: calc(100% - 2em);
+  overflow: visible;
+  background-color: #fefefe; /* Almost white background */
+}
+
+#roadsTable {
+  width: 100% !important;
+  display: table !important;
+  background-color: #fefefe; /* Almost white background */
+  border-collapse: collapse;
+}
+
+#roadsTable thead {
+  background-color: #f8f8f8; /* Very light gray for headers */
+}
+
+#roadsTable thead th {
+  padding: 4px 6px; /* Reduced padding */
+  border: 1px solid #e0e0e0;
+  font-size: 13px;
+  font-weight: bold;
+  color: #333;
+}
+
+#roadsTable tbody td {
+  padding: 2px 6px; /* Much less padding for condensed look */
+  border: 1px solid #f0f0f0;
+  font-size: 12px;
+  background-color: #fefefe; /* Almost white */
+}
+
+#roadsTable tbody tr:nth-child(even) {
+  background-color: #fcfcfc; /* Very subtle alternating rows */
+}
+
+#roadsTable tbody tr:nth-child(even) td {
+  background-color: #fcfcfc;
 }
 
 #qd-div {
@@ -75,16 +118,13 @@ span.res-tab.active {
 
 
 #flow-data {
-  position: absolute;
-  right: 0px;
-  top: 0px;
-  width: 59%;
+  position: relative;
+  width: 100%;
   min-height: 20px;
   background: #eef;
   border: thin solid #cce;
-}
-#flow-data-inner {
-
+  margin-top: 10px;
+  clear: both;
 }
 #flow-data table {
   border-collapse: collapse; 
@@ -107,6 +147,24 @@ span.res-tab.active {
   position: relative;
   border:  thin solid #ccc;
   padding: .3em .2em;
+}
+
+#clear-data-btn {
+  position: absolute;
+  top: 0.5em;
+  right: 0.5em;
+  padding: 0.3em 0.8em;
+  background-color: #f0f0f0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  color: #666;
+}
+
+#clear-data-btn:hover {
+  background-color: #e0e0e0;
+  color: #333;
 }
 
 label.inputrow, span.inputrow {
@@ -158,6 +216,59 @@ label.inputrow, span.inputrow {
   color: blue;
 }
 
-.heatmap-range td {
-	margin: .1em .2em;
+.heatmap-range {
+  border-collapse: collapse;
+  margin: 0.5em 0;
 }
+
+.heatmap-range td {
+  margin: .1em .2em;
+  padding: 0px 0.5em;
+  border: 1px solid #ddd;
+  font-family: monospace;
+  font-size: 13px;
+}
+
+.heatmap-range td:first-child {
+  text-align: left;
+  min-width: 120px;
+}
+
+/* DataTables styling */
+#roadsTable tbody tr:hover {
+  background-color: #f0f8ff !important;
+  cursor: pointer;
+}
+
+#roadsTable tbody tr:hover td {
+  background-color: #f0f8ff !important;
+}
+
+#roadsTable tbody tr.selected {
+  background-color: #1565c0 !important;
+  color: white !important;
+}
+
+#roadsTable tbody tr.selected td {
+  background-color: #1565c0 !important;
+  color: white !important;
+}
+
+#roadsTable tbody tr.selected:hover {
+  background-color: #1565c0 !important;
+  color: white !important;
+}
+
+#roadsTable tbody tr.selected:hover td {
+  background-color: #1565c0 !important;
+  color: white !important;
+}
+
+/* Hide DataTables default styling elements we don't want */
+#roadsTable_length,
+#roadsTable_filter,
+#roadsTable_info,
+#roadsTable_paginate {
+  display: none !important;
+}
+

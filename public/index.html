@@ -8,6 +8,9 @@
         integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
         crossorigin="anonymous">
   </script>
+  <!-- DataTables CSS and JS -->
+  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
+  <script type="text/javascript" src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
   <script type="text/javascript" src="https://js.api.here.com/v3/3.1/mapsjs-core.js"></script>
   <script type="text/javascript" src="https://js.api.here.com/v3/3.1/mapsjs-service.js"></script>
   <script type="text/javascript" src="https://js.api.here.com/v3/3.1/mapsjs-ui.js"></script>
@@ -17,6 +20,7 @@
   
   <script src="here-api.js" crossorigin="anonymous"></script>
   <script src="cookie.js" crossorigin="anonymous"></script>
+  <script src="heatmap-styles.js" crossorigin="anonymous"></script>
   <script src="explore.js" crossorigin="anonymous"></script>
   <link rel="stylesheet" type="text/css" href="explore.css" />
 
@@ -27,59 +31,52 @@
     <div id="github"><a href="https://github.com/chronakis/speed-monitor-bot">Project home at github</a></div>
   </div>
   <div class="infopar">
+    <button id="clear-data-btn" onclick="eraseParamsCookie(); return false;">Clear saved data</button>
     <div class="inputpar">
-    <div class="inputpar">
-      Enter your HERE Maps API key and optionally a starting bouding box (defaults to London).
-      You can get an API key from <a href="https://developer.here.com/" target="_blank">developer.here.com</a> for free.
-    </div>
-      <label for="bbox" class="inputrow">API Key: </label><input type="text" name="apiKey" id="apiKey" size="40" />
-      The key will be saved in a cookie after the first request.
-      <a href="#" onclick="eraseParamsCookie(); return false;">Click here to erase cookie</a>
+      <label for="apiKey" class="inputrow">API Key: </label><input type="text" name="apiKey" id="apiKey" size="40" />
+      Get one from <a href="https://developer.here.com/" target="_blank">developer.here.com</a> for free
     </div>
     <div class="inputpar">
-      <label for="bbox" class="inputrow">Bounding Box (bbox): </label><input type="text" name="bbox" id="bbox" size="40" value="51.5298310569666,-0.15522547772949555;51.520013962290236,-0.1218844144792921"/>
-      <input type="button" name="Set bbox from map" id="bboxFromMap" value="Set bbox to the current map view" onclick="mapToBBox()"/>
+      <label for="bbox" class="inputrow">Bounding Box (bbox): </label><input type="text" name="bbox" id="bbox" size="40" value="-0.1552,51.5200,-0.1218,51.5298"/>
+      <input type="button" name="Set map to bbox" id="setMapToBbox" value="Set map to bbox" onclick="setMapToBboxAndFetch()"/>
     </div>
     <div class="inputpar">
-      <span class="inputrow">Units:</span>
-      <input type="radio" id="metric" value="metric" name="units" checked/>
+      <label for="bboxFromMap" class="inputrow">Units: </label>
+      <input type="radio" id="metric" value="metric" name="units"/>
       <label for="metric">Metric</label>
       <span class="hspace"></span>
-      <input type="radio" id="imperial" value="imperial" name="units"/>
+      <input type="radio" id="imperial" value="imperial" name="units" checked/>
       <label for="imperial">Imperial</label>
-    </div>
-    <div class="inputpar">
-      <label for="go" class="inputrow"></label>
-      <input type="button" name="go" id="go" value="Fetch map and traffic data" onclick="updateMap()"/>
-      <span class="hspace"></span>
-      (Note for devs: If you want to inspect the raw flow data, they are in the global variable called <b>trdata</b>)
+      <span class="hspace" style="width: 12.5em;"></span>
+      <input type="button" name="fetch" id="fetchFlowData" value="Fetch flow data" onclick="fetchFlowDataFromMap()"/>
     </div>
   </div>
   <div id="test-cont">
     <div id="results-cont">
       <div id="results-nav">
-        <span id="tab-button-manual" class="res-tab" onclick="resTab(this, 'manual');">Manual selection</span>
-        <span id="tab-button-heatmap" class="res-tab" onclick="resTab(this, 'heatmap');">Plot Heatmap</span>
-        <span id="tab-button-speeding" class="res-tab" onclick="resTab(this, 'speeding');">Plot Speeding</span>
+        <span id="tab-button-heatmap" class="res-tab" onclick="resTab(this, 'heatmap');">Heatmap</span>
+        <span id="tab-button-manual" class="res-tab" onclick="resTab(this, 'manual');">Road list</span>
       </div>
-      <div id="results-manual" class="results-tab-content"></div>
-      <div id="results-heatmap" class="results-tab-content">
-        <p><b>Experimental feature</b>: Plots each section of the road with a colour scale that shows the average speed. Sub-sections don't work yet, so the average is over the whole length of the road.</p>
-        <table class="heatmap-range">
-          <script>
-            Object.keys(heatmapColours)
-              .sort((e1, e2) => (e1.order - e2.order))
-              .forEach(key => {
-                document.writeln(
-                  `<tr><td>${heatmapColours[key].range}</td><td style="background: ${heatmapColours[key].color}; width: 5em;"></td></tr>`
-                );
-              });
-          </script> 
+      <div id="results-manual" class="results-tab-content">
+        <div class="roadHeader">Click a road section to plot it on the map and see the speed data. Pan or zoom out, if you can't see it. The roads extend beyond the bounding box.</div>
+        <table id="roadsTable" class="display" style="width:100%">
+          <thead>
+            <tr>
+              <th>Code</th>
+              <th>Description</th>
+              <th>Length</th>
+              <th>Speed</th>
+            </tr>
+          </thead>
+          <tbody>
+          </tbody>
         </table>
       </div>
-      <div id="results-speeding" class="results-tab-content">
-        <p><b>Experimental feature - Not working yet</b>: This plots each section of the road where the reported average speed (SU - Speed Uncut) is higher than the average speed excluding speeding (SP).</p>
-        <div id="results-speeding-content" class="results-tab-content"></div>        
+      <div id="results-heatmap" class="results-tab-content">
+        <p><b>Experimental feature</b>: Plots each section of the road with a colour scale that shows the average speed. Sub-sections don't work yet, so the average is over the whole length of the road.</p>
+        <table id="heatmap-legend" class="heatmap-range">
+          <!-- Legend will be populated dynamically by JavaScript -->
+        </table>
       </div>
       <div id="qd-div" class="inputpar">
         <span class="inputrow">Queuing direction (QD):</span>
@@ -95,19 +92,7 @@
     </div>
   </div>
   <div id="flow-cont">
-    <div id="config-output">
-      <p>The LI and PC identify the road and section. Copy them in your bot-config.js file</p>
-      <div class="inputpar">
-        <label for="li" class="inputrow">LI (Road Id): </label><input type="text" name="li" id="li" readonly/><span class="hspace"></span>
-      </div>
-      <div class="inputpar">
-        <label for="pc" class="inputrow">PC (Segment Id): </label><input type="text" name="pc" id="pc" readonly/>
-      </div>
-    </div>
     <div id="flow-data">
-      <div id="flow-data-header" class="inputpar">
-        Speed data from the section will be shown below. Details on the metrics can be found at <a href="https://developer.here.com/documentation/traffic/dev_guide/topics/common-acronyms.html" target="_blank">HERE Maps documentation</a>
-      </div>
       <div id="flow-data-inner"></div>
     </div>
   </div>
