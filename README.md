@@ -1,5 +1,7 @@
 # speed-monitor-bot #
 
+** The project is moving towards here api v7 and this informatin is outdated **
+
 A set of tools to help process HERE Maps and google distance matrix data written in node js. The twitter bot was inspired by the original [speederbot](https://github.com/BerkshireCar/SpeederBot). It does not depend to any third party service and you can run it from your computer or your Rasberry PI or whatever device you can put node in.
 
 There are four tools in this project:
