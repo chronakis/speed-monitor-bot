@@ -44,7 +44,6 @@ export const AuthProvider = ({ children }) => {
 
   // Simple sign up with email/password (direct Supabase)
   const signUpWithEmail = async (email, password, fullName = '') => {
-    setLoading(true)
     try {
       const { data, error } = await supabase.auth.signUp({
         email,
@@ -53,6 +52,7 @@ export const AuthProvider = ({ children }) => {
           data: {
             full_name: fullName,
           },
+          emailRedirectTo: `${window.location.origin}/dashboard?verified=true`
         },
       })
 
@@ -62,22 +62,22 @@ export const AuthProvider = ({ children }) => {
 
       return {
         success: true,
-        message: 'Check your email for the confirmation link!',
-        user: data.user
+        message: data.user && !data.user.email_confirmed_at 
+          ? `Account created successfully! Please check your email (${email}) for a verification link to complete your registration.`
+          : 'Account created and verified successfully!',
+        user: data.user,
+        needsVerification: data.user && !data.user.email_confirmed_at
       }
     } catch (error) {
       return {
         success: false,
         message: error.message || 'Signup failed'
       }
-    } finally {
-      setLoading(false)
     }
   }
 
   // Simple sign in with email/password (direct Supabase)
   const signInWithEmail = async (email, password) => {
-    setLoading(true)
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
@@ -99,8 +99,6 @@ export const AuthProvider = ({ children }) => {
         success: false,
         message: error.message || 'Login failed'
       }
-    } finally {
-      setLoading(false)
     }
   }
 
