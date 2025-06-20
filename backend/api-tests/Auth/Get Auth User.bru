@@ -1,0 +1,20 @@
+meta {
+  name: Get Auth User
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/auth/user
+}
+
+tests {
+  test("Status is 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+  
+  test("Response has placeholder message", function() {
+    const body = res.getBody();
+    expect(body).to.have.property('message', 'Auth routes - TODO');
+  });
+} 

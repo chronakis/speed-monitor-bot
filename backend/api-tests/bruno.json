@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "name": "Traffic Flow Bot API",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
+} 
