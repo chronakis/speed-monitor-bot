@@ -1,0 +1,37 @@
+meta {
+  name: Get Health
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/health
+}
+
+tests {
+  test("Status is 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+  
+  test("Response has required fields", function() {
+    const body = res.getBody();
+    expect(body).to.have.property('status', 'ok');
+    expect(body).to.have.property('timestamp');
+    expect(body).to.have.property('uptime');
+    expect(body).to.have.property('environment');
+    expect(body).to.have.property('version', '1.0.0');
+  });
+  
+  test("Timestamp is valid", function() {
+    const body = res.getBody();
+    const timestamp = new Date(body.timestamp);
+    expect(timestamp).to.be.instanceOf(Date);
+    expect(timestamp.getTime()).to.not.be.NaN;
+  });
+  
+  test("Uptime is positive number", function() {
+    const body = res.getBody();
+    expect(body.uptime).to.be.a('number');
+    expect(body.uptime).to.be.at.least(0);
+  });
+} 

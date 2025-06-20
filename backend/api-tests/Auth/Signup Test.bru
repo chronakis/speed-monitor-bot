@@ -1,0 +1,34 @@
+meta {
+  name: Signup Test
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/api/auth/signup
+  body: json
+}
+
+body:json {
+  {
+    "email": "test@example.com",
+    "password": "password123",
+    "fullName": "Test User"
+  }
+}
+
+tests {
+  test("Status should be 201 for successful signup", function() {
+    expect(res.getStatus()).to.equal(201);
+  });
+  
+  test("Response should have success property", function() {
+    const body = res.getBody();
+    expect(body).to.have.property('success', true);
+  });
+  
+  test("Response should have message", function() {
+    const body = res.getBody();
+    expect(body).to.have.property('message');
+  });
+} 

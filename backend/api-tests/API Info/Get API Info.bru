@@ -1,0 +1,31 @@
+meta {
+  name: Get API Info
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/
+}
+
+tests {
+  test("Status is 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+  
+  test("Response has API information", function() {
+    const body = res.getBody();
+    expect(body).to.have.property('message', 'Traffic Flow Bot API');
+    expect(body).to.have.property('version', '1.0.0');
+    expect(body).to.have.property('status', 'running');
+    expect(body).to.have.property('endpoints');
+  });
+  
+  test("Endpoints are defined", function() {
+    const body = res.getBody();
+    expect(body.endpoints).to.have.property('health', '/health');
+    expect(body.endpoints).to.have.property('auth', '/auth');
+    expect(body.endpoints).to.have.property('user', '/api/user');
+    expect(body.endpoints).to.have.property('here', '/api/here');
+  });
+} 

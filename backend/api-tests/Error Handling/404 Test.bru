@@ -1,0 +1,22 @@
+meta {
+  name: 404 Test
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/nonexistent-endpoint
+}
+
+tests {
+  test("Status is 404", function() {
+    expect(res.getStatus()).to.equal(404);
+  });
+  
+  test("Response has error information", function() {
+    const body = res.getBody();
+    expect(body).to.have.property('error', 'Endpoint not found');
+    expect(body).to.have.property('path', '/nonexistent-endpoint');
+    expect(body).to.have.property('method', 'GET');
+  });
+} 
