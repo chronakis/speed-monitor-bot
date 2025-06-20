@@ -17,6 +17,8 @@ const LandingPage = () => {
   const [rememberMe, setRememberMe] = useState(false)
   const [error, setError] = useState('')
   const [message, setMessage] = useState('')
+  const [signupSuccess, setSignupSuccess] = useState(false)
+  const [authLoading, setAuthLoading] = useState(false) // Local loading state for auth operations
 
   const handleInputChange = (e) => {
     setFormData(prev => ({
@@ -27,11 +29,15 @@ const LandingPage = () => {
 
   const handleLogin = async (e) => {
     e.preventDefault()
+    e.stopPropagation()
     setError('')
     setMessage('')
+    setSignupSuccess(false) // Reset signup success state
+    setAuthLoading(true)
 
     if (!formData.email || !formData.password) {
       setError('Please fill in all fields')
+      setAuthLoading(false)
       return
     }
 
@@ -39,31 +45,40 @@ const LandingPage = () => {
     
     if (result.success) {
       setMessage('Login successful! Redirecting...')
-      navigate('/dashboard')
+      // Delay navigation to show success message
+      setTimeout(() => {
+        navigate('/dashboard')
+      }, 1500)
     } else {
       setError(result.message)
     }
+    setAuthLoading(false)
   }
 
   const handleSignup = async (e) => {
     e.preventDefault()
+    e.stopPropagation()
     setError('')
     setMessage('')
+    setAuthLoading(true)
 
     const { fullName, email, password, confirmPassword } = formData
 
     if (!fullName || !email || !password || !confirmPassword) {
       setError('Please fill in all fields')
+      setAuthLoading(false)
       return
     }
 
     if (password !== confirmPassword) {
       setError('Passwords do not match')
+      setAuthLoading(false)
       return
     }
 
     if (password.length < 6) {
       setError('Password must be at least 6 characters long')
+      setAuthLoading(false)
       return
     }
 
@@ -71,9 +86,18 @@ const LandingPage = () => {
     
     if (result.success) {
       setMessage(result.message)
+      setSignupSuccess(true)
+      // Clear the form
+      setFormData({
+        fullName: '',
+        email: '',
+        password: '',
+        confirmPassword: ''
+      })
     } else {
       setError(result.message)
     }
+    setAuthLoading(false)
   }
 
   const handleGoogleAuth = async () => {
@@ -148,7 +172,12 @@ const LandingPage = () => {
             {/* Tab Navigation */}
             <div style={{ display: 'flex', marginBottom: '30px', borderBottom: '1px solid #eee' }}>
               <button
-                onClick={() => setActiveTab('login')}
+                onClick={() => {
+                  setActiveTab('login')
+                  setSignupSuccess(false)
+                  setError('')
+                  setMessage('')
+                }}
                 style={{
                   flex: 1,
                   padding: '12px 20px',
@@ -163,7 +192,12 @@ const LandingPage = () => {
                 Log in
               </button>
               <button
-                onClick={() => setActiveTab('signup')}
+                onClick={() => {
+                  setActiveTab('signup')
+                  setSignupSuccess(false)
+                  setError('')
+                  setMessage('')
+                }}
                 style={{
                   flex: 1,
                   padding: '12px 20px',
@@ -223,7 +257,34 @@ const LandingPage = () => {
             </div>
 
             {/* Auth Form */}
-            <form onSubmit={activeTab === 'login' ? handleLogin : handleSignup} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            {signupSuccess ? (
+              <div style={{ textAlign: 'center', padding: '20px' }}>
+                <div style={{ fontSize: '32px', marginBottom: '16px' }}>📧</div>
+                <h3 style={{ color: '#333', marginBottom: '12px' }}>Check Your Email!</h3>
+                <p style={{ color: '#666', marginBottom: '20px', lineHeight: '1.5' }}>
+                  We've sent a verification link to your email address. Click the link to activate your account and start using Traffic Flow Bot.
+                </p>
+                <button 
+                  onClick={() => {
+                    setSignupSuccess(false)
+                    setMessage('')
+                    setActiveTab('login')
+                  }}
+                  style={{
+                    padding: '10px 20px',
+                    border: '1px solid #007bff',
+                    background: 'white',
+                    color: '#007bff',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    fontSize: '14px'
+                  }}
+                >
+                  Back to Login
+                </button>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               {activeTab === 'signup' && (
                 <div>
                   <label style={{ display: 'block', marginBottom: '4px', color: '#333', fontSize: '14px' }}>
@@ -256,6 +317,16 @@ const LandingPage = () => {
                   name="email"
                   value={formData.email}
                   onChange={handleInputChange}
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault()
+                      if (activeTab === 'login') {
+                        handleLogin(e)
+                      } else {
+                        handleSignup(e)
+                      }
+                    }
+                  }}
                   placeholder="Enter your email"
                   style={{
                     width: '100%',
@@ -272,34 +343,22 @@ const LandingPage = () => {
                 <label style={{ display: 'block', marginBottom: '4px', color: '#333', fontSize: '14px' }}>
                   Password
                 </label>
-                <input
-                  type="password"
-                  name="password"
-                  value={formData.password}
-                  onChange={handleInputChange}
-                  placeholder={activeTab === 'signup' ? 'Create a password (min. 6 characters)' : 'Enter your password'}
-                  style={{
-                    width: '100%',
-                    padding: '10px',
-                    border: '1px solid #ddd',
-                    borderRadius: '4px',
-                    fontSize: '14px'
-                  }}
-                  required
-                />
-              </div>
-
-              {activeTab === 'signup' && (
-                <div>
-                  <label style={{ display: 'block', marginBottom: '4px', color: '#333', fontSize: '14px' }}>
-                    Confirm Password
-                  </label>
-                  <input
+                                  <input
                     type="password"
-                    name="confirmPassword"
-                    value={formData.confirmPassword}
+                    name="password"
+                    value={formData.password}
                     onChange={handleInputChange}
-                    placeholder="Confirm your password"
+                    onKeyPress={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault()
+                        if (activeTab === 'login') {
+                          handleLogin(e)
+                        } else {
+                          handleSignup(e)
+                        }
+                      }
+                    }}
+                    placeholder={activeTab === 'signup' ? 'Create a password (min. 6 characters)' : 'Enter your password'}
                     style={{
                       width: '100%',
                       padding: '10px',
@@ -309,6 +368,34 @@ const LandingPage = () => {
                     }}
                     required
                   />
+              </div>
+
+              {activeTab === 'signup' && (
+                <div>
+                  <label style={{ display: 'block', marginBottom: '4px', color: '#333', fontSize: '14px' }}>
+                    Confirm Password
+                  </label>
+                                      <input
+                      type="password"
+                      name="confirmPassword"
+                      value={formData.confirmPassword}
+                      onChange={handleInputChange}
+                      onKeyPress={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault()
+                          handleSignup(e)
+                        }
+                      }}
+                      placeholder="Confirm your password"
+                      style={{
+                        width: '100%',
+                        padding: '10px',
+                        border: '1px solid #ddd',
+                        borderRadius: '4px',
+                        fontSize: '14px'
+                      }}
+                      required
+                    />
                 </div>
               )}
 
@@ -344,39 +431,70 @@ const LandingPage = () => {
 
               {message && (
                 <div style={{
-                  padding: '12px',
-                  background: '#efe',
-                  border: '1px solid #cfc',
-                  borderRadius: '4px',
-                  color: '#3c3',
-                  fontSize: '14px'
+                  padding: signupSuccess ? '20px' : '12px',
+                  background: signupSuccess ? '#f0f9ff' : '#efe',
+                  border: signupSuccess ? '2px solid #0ea5e9' : '1px solid #cfc',
+                  borderRadius: '8px',
+                  color: signupSuccess ? '#0369a1' : '#3c3',
+                  fontSize: '14px',
+                  textAlign: 'center',
+                  position: 'relative'
                 }}>
-                  {message}
+                  {signupSuccess && (
+                    <div style={{ fontSize: '24px', marginBottom: '8px' }}>
+                      ✅
+                    </div>
+                  )}
+                  <strong>{signupSuccess ? 'Success!' : ''}</strong>
+                  <div>{message}</div>
+                  {signupSuccess && (
+                    <div style={{ 
+                      marginTop: '12px', 
+                      fontSize: '13px', 
+                      color: '#0369a1',
+                      fontWeight: 'normal'
+                    }}>
+                      Check your email and click the verification link to complete your registration.
+                    </div>
+                  )}
                 </div>
               )}
 
               <button
-                type="submit"
-                disabled={loading}
-                className="btn btn-primary"
+                type="button"
+                disabled={authLoading}
+                onClick={(e) => {
+                  e.preventDefault()
+                  e.stopPropagation()
+                  
+                  if (authLoading) return
+                  
+                  if (activeTab === 'login') {
+                    handleLogin(e)
+                  } else {
+                    handleSignup(e)
+                  }
+                }}
                 style={{
                   width: '100%',
                   padding: '12px',
-                  background: '#007bff',
+                  background: authLoading ? '#ccc' : '#007bff',
                   color: 'white',
                   border: 'none',
                   borderRadius: '4px',
-                  cursor: 'pointer',
+                  cursor: authLoading ? 'not-allowed' : 'pointer',
                   fontSize: '16px',
-                  opacity: loading ? 0.5 : 1
+                  opacity: authLoading ? 0.5 : 1,
+                  transition: 'all 0.2s ease'
                 }}
               >
-                {loading ? 
+                {authLoading ? 
                   (activeTab === 'login' ? 'Signing in...' : 'Creating Account...') :
                   (activeTab === 'login' ? 'Log in' : 'Create Account')
                 }
               </button>
-            </form>
+            </div>
+            )}
           </div>
         </div>
 
