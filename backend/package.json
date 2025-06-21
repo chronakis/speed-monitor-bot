@@ -11,6 +11,7 @@
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
     "test:supabase": "ts-node scripts/test-supabase.ts",
+    "test:config": "ts-node scripts/test-config.ts",
     "check:rls": "ts-node scripts/check-rls.ts",
     "lint": "eslint src/**/*.ts",
     "type-check": "tsc --noEmit"

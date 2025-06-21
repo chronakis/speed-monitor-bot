@@ -62,13 +62,15 @@ router.post('/signup', asyncHandler(async (req: Request, res: Response) => {
       if (data.user.email_confirmed_at) {
         console.log('User email is confirmed, creating user preferences...');
         const { error: insertError } = await supabaseAdmin
-          .from('user_preferences')
+          .from('user_config')
           .insert({
             user_id: data.user.id,
-            full_name: fullName || '',
-            email: data.user.email || email,
+            use_own_api_key: false,
+            default_units: 'imperial',
+            default_map_location: 'london',
+            data_retention_days: 90,
             email_notifications: true,
-            default_api_source: 'builtin',
+            api_key_status: 'none',
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString()
           });
@@ -192,38 +194,40 @@ router.get('/callback', asyncHandler(async (req: Request, res: Response) => {
         provider: data.user.app_metadata?.provider
       });
 
-      // Check if user_preferences already exists
-      const { data: existingPrefs, error: prefsCheckError } = await supabaseAdmin
-        .from('user_preferences')
+      // Check if user_config already exists
+      const { data: existingConfig, error: configCheckError } = await supabaseAdmin
+        .from('user_config')
         .select('user_id')
         .eq('user_id', data.user.id)
         .single();
 
-      if (prefsCheckError && prefsCheckError.code !== 'PGRST116') { // PGRST116 = not found
-        console.error('Error checking user preferences:', prefsCheckError);
+      if (configCheckError && configCheckError.code !== 'PGRST116') { // PGRST116 = not found
+        console.error('Error checking user config:', configCheckError);
       }
 
-      // Create user preferences if they don't exist and user is confirmed
-      if (!existingPrefs && data.user.email_confirmed_at) {
-        console.log('Creating user preferences for confirmed user...');
+      // Create user config if it doesn't exist and user is confirmed
+      if (!existingConfig && data.user.email_confirmed_at) {
+        console.log('Creating user config for confirmed user...');
         const { error: insertError } = await supabaseAdmin
-          .from('user_preferences')
+          .from('user_config')
           .insert({
             user_id: data.user.id,
-            full_name: data.user.user_metadata?.full_name || data.user.user_metadata?.name || '',
-            email: data.user.email || '',
+            use_own_api_key: false,
+            default_units: 'imperial',
+            default_map_location: 'london',
+            data_retention_days: 90,
             email_notifications: true,
-            default_api_source: 'builtin',
+            api_key_status: 'none',
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString()
           });
 
         if (insertError) {
-          console.error('Error creating user preferences in callback:', insertError);
+          console.error('Error creating user config in callback:', insertError);
           return res.redirect(`${process.env.FRONTEND_URL}/auth/error?message=${encodeURIComponent('Failed to complete account setup')}`);
         }
         
-        console.log('User preferences created successfully for:', data.user.email);
+        console.log('User config created successfully for:', data.user.email);
       }
     }
 
@@ -375,33 +379,35 @@ router.post('/oauth-user', asyncHandler(async (req: Request, res: Response) => {
       throw createError('Invalid token or user not found', 401);
     }
 
-    // Check if user_preferences already exists
-    const { data: existingPrefs, error: checkError } = await supabaseAdmin
-      .from('user_preferences')
+    // Check if user_config already exists
+    const { data: existingConfig, error: checkError } = await supabaseAdmin
+      .from('user_config')
       .select('user_id')
       .eq('user_id', user.id)
       .single();
 
     if (checkError && checkError.code !== 'PGRST116') { // PGRST116 is "no rows returned"
-      throw createError('Error checking user preferences', 500);
+      throw createError('Error checking user config', 500);
     }
 
-    // If user preferences don't exist, create them
-    if (!existingPrefs) {
+    // If user config doesn't exist, create it
+    if (!existingConfig) {
       const { error: insertError } = await supabaseAdmin
-        .from('user_preferences')
+        .from('user_config')
         .insert({
           user_id: user.id,
-          full_name: user.user_metadata?.full_name || user.user_metadata?.name || '',
-          email: user.email,
+          use_own_api_key: false,
+          default_units: 'imperial',
+          default_map_location: 'london',
+          data_retention_days: 90,
           email_notifications: true,
-          default_api_source: 'builtin',
+          api_key_status: 'none',
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString()
         });
 
       if (insertError) {
-        throw createError(`Error creating user preferences: ${insertError.message}`, 500);
+        throw createError(`Error creating user config: ${insertError.message}`, 500);
       }
     }
 
