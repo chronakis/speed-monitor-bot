@@ -45,13 +45,13 @@ ENCRYPTION_KEY=$(openssl rand -hex 32)
 
 # Update the local.env file with generated secrets
 if [[ "$OSTYPE" == "darwin"* ]]; then
-    # macOS
-    sed -i '' "s/JWT_SECRET=your-jwt-secret-here/JWT_SECRET=$JWT_SECRET/" backend/local.env
-    sed -i '' "s/ENCRYPTION_KEY=your-32-character-encryption-key/ENCRYPTION_KEY=$ENCRYPTION_KEY/" backend/local.env
+    # macOS - escape special characters in the secrets
+    sed -i '' "s|JWT_SECRET=your-jwt-secret-here|JWT_SECRET=$JWT_SECRET|" backend/local.env
+    sed -i '' "s|ENCRYPTION_KEY=your-32-character-encryption-key|ENCRYPTION_KEY=$ENCRYPTION_KEY|" backend/local.env
 else
-    # Linux
-    sed -i "s/JWT_SECRET=your-jwt-secret-here/JWT_SECRET=$JWT_SECRET/" backend/local.env
-    sed -i "s/ENCRYPTION_KEY=your-32-character-encryption-key/ENCRYPTION_KEY=$ENCRYPTION_KEY/" backend/local.env
+    # Linux - escape special characters in the secrets
+    sed -i "s|JWT_SECRET=your-jwt-secret-here|JWT_SECRET=$JWT_SECRET|" backend/local.env
+    sed -i "s|ENCRYPTION_KEY=your-32-character-encryption-key|ENCRYPTION_KEY=$ENCRYPTION_KEY|" backend/local.env
 fi
 
 echo -e "${GREEN}✅ Generated secure JWT_SECRET and ENCRYPTION_KEY${NC}"
