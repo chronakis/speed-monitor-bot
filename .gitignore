@@ -11,3 +11,11 @@ auth-config.js
 *.csv
 /stokey
 /stokey-google
+
+# Environment files with secrets
+backend/local.env
+backend/.env
+.env
+.env.local
+.env.development
+.env.production
