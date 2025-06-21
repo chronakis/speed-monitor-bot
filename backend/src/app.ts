@@ -12,6 +12,7 @@ import { errorHandler } from './middleware/errorHandler';
 import healthRoutes from './routes/health';
 import hereRoutes from './routes/here';
 import testRoutes from './routes/test';
+import configRoutes from './routes/config';
 
 // Load environment variables
 dotenv.config();
@@ -72,6 +73,7 @@ app.use('/test', testRoutes);
 // API routes - Note: Authentication is now handled by Supabase in frontend
 // These routes can implement their own token verification if needed
 app.use('/api/here', hereRoutes);
+app.use('/api/config', configRoutes);
 
 // Root endpoint
 app.get('/', (_req, res) => {
@@ -82,6 +84,7 @@ app.get('/', (_req, res) => {
     endpoints: {
       health: '/health',
       here: '/api/here',
+      config: '/api/config',
     },
     note: 'Authentication is handled by Supabase directly in the frontend'
   });

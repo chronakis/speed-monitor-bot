@@ -12,7 +12,7 @@ export type Json =
 export interface Database {
   public: {
     Tables: {
-      user_preferences: {
+      user_config: {
         Row: {
           id: string
           user_id: string
@@ -21,63 +21,37 @@ export interface Database {
           default_map_location: string
           data_retention_days: number
           email_notifications: boolean
-          created_at: string
-          updated_at: string
-        }
-        Insert: {
-          id?: string
-          user_id: string
-          use_own_api_key?: boolean
-          default_units?: 'metric' | 'imperial'
-          default_map_location?: string
-          data_retention_days?: number
-          email_notifications?: boolean
-          created_at?: string
-          updated_at?: string
-        }
-        Update: {
-          id?: string
-          user_id?: string
-          use_own_api_key?: boolean
-          default_units?: 'metric' | 'imperial'
-          default_map_location?: string
-          data_retention_days?: number
-          email_notifications?: boolean
-          created_at?: string
-          updated_at?: string
-        }
-      }
-      user_api_keys: {
-        Row: {
-          id: string
-          user_id: string
           here_api_key_encrypted: string | null
-          key_name: string
-          is_active: boolean
+          api_key_status: 'none' | 'pending' | 'valid' | 'invalid' | 'expired'
           last_validated_at: string | null
-          validation_status: 'pending' | 'valid' | 'invalid' | 'expired'
           created_at: string
           updated_at: string
         }
         Insert: {
           id?: string
           user_id: string
+          use_own_api_key?: boolean
+          default_units?: 'metric' | 'imperial'
+          default_map_location?: string
+          data_retention_days?: number
+          email_notifications?: boolean
           here_api_key_encrypted?: string | null
-          key_name?: string
-          is_active?: boolean
+          api_key_status?: 'none' | 'pending' | 'valid' | 'invalid' | 'expired'
           last_validated_at?: string | null
-          validation_status?: 'pending' | 'valid' | 'invalid' | 'expired'
           created_at?: string
           updated_at?: string
         }
         Update: {
           id?: string
           user_id?: string
+          use_own_api_key?: boolean
+          default_units?: 'metric' | 'imperial'
+          default_map_location?: string
+          data_retention_days?: number
+          email_notifications?: boolean
           here_api_key_encrypted?: string | null
-          key_name?: string
-          is_active?: boolean
+          api_key_status?: 'none' | 'pending' | 'valid' | 'invalid' | 'expired'
           last_validated_at?: string | null
-          validation_status?: 'pending' | 'valid' | 'invalid' | 'expired'
           created_at?: string
           updated_at?: string
         }
@@ -204,6 +178,7 @@ export interface Database {
           email: string | null
           use_own_api_key: boolean | null
           default_units: 'metric' | 'imperial' | null
+          api_key_status: 'none' | 'pending' | 'valid' | 'invalid' | 'expired' | null
           total_api_calls: number | null
           calls_last_30_days: number | null
           calls_today: number | null
@@ -240,13 +215,9 @@ export interface Database {
 }
 
 // Helper types for common operations
-export type UserPreferences = Database['public']['Tables']['user_preferences']['Row']
-export type UserPreferencesInsert = Database['public']['Tables']['user_preferences']['Insert']
-export type UserPreferencesUpdate = Database['public']['Tables']['user_preferences']['Update']
-
-export type UserApiKey = Database['public']['Tables']['user_api_keys']['Row']
-export type UserApiKeyInsert = Database['public']['Tables']['user_api_keys']['Insert']
-export type UserApiKeyUpdate = Database['public']['Tables']['user_api_keys']['Update']
+export type UserConfig = Database['public']['Tables']['user_config']['Row']
+export type UserConfigInsert = Database['public']['Tables']['user_config']['Insert']
+export type UserConfigUpdate = Database['public']['Tables']['user_config']['Update']
 
 export type ApiUsage = Database['public']['Tables']['api_usage']['Row']
 export type ApiUsageInsert = Database['public']['Tables']['api_usage']['Insert']
