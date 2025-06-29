@@ -13,8 +13,7 @@ auth-config.js
 /stokey-google
 
 # Environment files with secrets
-backend/local.env
-backend/.env
+local.env
 .env
 .env.local
 .env.development
